@@ -1,0 +1,106 @@
+body {
+  font-family: "Noto Sans KR", sans-serif;
+}
+
+.topContent {
+  flex: auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  width: 100%;
+  margin-top: 10%;
+}
+
+.logoImage {
+  width: 40%;
+}
+
+.chooseGrade,
+.goToTeacherCare {
+  margin-top: 5%;
+  margin-left: 5%;
+  margin-right: 5%;
+}
+
+.subtitle {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin-bottom: 5%;
+}
+
+.contentText {
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-bottom: 5%;
+}
+
+.title {
+  text-align: center;
+}
+
+.wrapGrade {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 5%;
+}
+
+.gradeButton {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  margin-bottom: 5%;
+  padding-left: 5%;
+  padding-right: 5%;
+  border-radius: 40px;
+  background-color: #ebebeb;
+  border: none;
+  padding-top: 3%;
+  padding-bottom: 3%;
+}
+
+.gradeDiv {
+  width: 90%;
+  display: flex;
+  align-items: center;
+  margin-bottom: 5%;
+  padding-left: 5%;
+  padding-right: 5%;
+  border-radius: 40px;
+  background-color: #ebebeb;
+  border: none;
+  padding-top: 3%;
+  padding-bottom: 3%;
+}
+
+.wrapGoogleFormGrade {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin-top: 5%;
+}
+
+.googleForm {
+  height: 1.5em;
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 5%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  background-color: #59c1d5;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+}
+
+.youtubeLogo {
+  height: 25px;
+}

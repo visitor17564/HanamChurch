@@ -1,0 +1,10 @@
+@domain = https://api.notion.com/v1/databases
+@Authorization = Bearer secret_t1CdN9S8yicG5eWLUOfhcWaOscVnFXns
+@id = a1c088eea3384301ae6110cb917b7ad7
+@notion_version = 2022-06-28
+
+###
+# DB조회
+GET {{domain}}/{{id}}
+
+
