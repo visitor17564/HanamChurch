@@ -1,9 +1,8 @@
 function wrapClass() {
-  const classDiv = document.getElementById("wrapClass");
-  console.log(classDiv);
+  const classDiv = document.getElementById('wrapClass');
   // query string에서 grade를 가져옴
   const grade = parseInt(
-    new URLSearchParams(window.location.search).get("grade")
+    new URLSearchParams(window.location.search).get('grade'),
   );
   let count = 0;
   if (grade === 1) count = 6;
@@ -11,9 +10,9 @@ function wrapClass() {
   else if (grade === 3) count = 3;
 
   for (let i = 1; i <= count; i++) {
-    const button = document.createElement("button");
-    button.classList.add("gradeButton");
-    button.classList.add("contentText");
+    const button = document.createElement('button');
+    button.classList.add('gradeButton');
+    button.classList.add('contentText');
     button.onclick = () => {
       location.href = `/views/html/attendance.html?grade=${grade}&class=${i}`;
     };
@@ -23,5 +22,5 @@ function wrapClass() {
 }
 
 // 다큐먼트가 로드될 때까지 기다리고 wrapClass 함수 실행
-document.addEventListener("DOMContentLoaded", wrapClass);
+document.addEventListener('DOMContentLoaded', wrapClass);
 wrapClass();
