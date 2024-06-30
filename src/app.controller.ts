@@ -7,7 +7,7 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  getHello(): Promise<QueryDatabaseResponse> {
-    return this.appService.getStudentById();
+  getHello(): string {
+    return this.appService.getHello();
   }
 }

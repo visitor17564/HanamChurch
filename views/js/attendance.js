@@ -1,6 +1,7 @@
 // 다큐먼트가 로드될 때가지 기다립니다.
 document.addEventListener('DOMContentLoaded', async () => {
   await wrapClassDiv();
+  await getBoard();
 });
 
 function wrapClassDiv() {
@@ -88,4 +89,22 @@ function makeTeacher(grade, classNum) {
       console.log('학년 정보가 잘못되었습니다.');
   }
   return teacherName;
+}
+
+async function getBoard() {
+  const grade = parseInt(
+    new URLSearchParams(window.location.search).get('grade'),
+  );
+  const classNum = parseInt(
+    new URLSearchParams(window.location.search).get('class'),
+  );
+  const date = '2024-06-30';
+  const data = await fetch(
+    `http://localhost:3000/board/viewBoard/${date}/${parseInt(grade)}/${parseInt(classNum)}`,
+  );
+  const response = await data.json();
+
+  if (response[0].length === response[1].length) {
+  }
+  console.log(response);
 }
