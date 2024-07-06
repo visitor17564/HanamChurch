@@ -23,11 +23,13 @@ export class BoardService {
   ) {
     // 모든 학생 리스트 가져오기
     const classMembers = await this.getClassMembers(gradeNumber, classNumber);
+
     const classBoard = await this.getClassBoard(
       checkedDate,
       gradeNumber,
       classNumber,
     );
+
     // classBoard의 id값을 배열로 만듭니다.
     const result = [];
     result.push(classMembers);
