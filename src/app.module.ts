@@ -5,7 +5,13 @@ import { ConfigModule } from '@nestjs/config';
 import { BoardModule } from './board/board.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), BoardModule],
+  imports: [
+    ConfigModule.forRoot({
+      envFilePath: '.env',
+      isGlobal: true,
+    }),
+    BoardModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
