@@ -1,47 +1,29 @@
 import { Injectable } from '@nestjs/common';
 import { Client } from '@notionhq/client';
-import sql from 'mssql';
-import { config } from '../config';
+import { pool } from '../mssql';
 
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
 
 @Injectable()
 export class BoardService {
-  private studentsDatabaseId: string;
-  private checkDatabaseId: string;
-  private commentsDatabaseId: string;
-  private config = {};
-  private poolconnection = null;
-  private connected = false;
+  private pool;
 
   constructor() {
-    this.studentsDatabaseId = process.env.NOTION_STUDENTS_DATABASE_ID;
-    this.checkDatabaseId = process.env.NOTION_CHECK_DATABASE_ID;
-    this.commentsDatabaseId = process.env.NOTION_COMMENTS_DATABASE_ID;
-    this.config = config;
+    this.pool = pool;
+    this.checkConnection();
   }
 
-  async connect() {
+  async checkConnection() {
     try {
-      console.log(`Database connecting...${this.connected}`);
-      if (this.connected === false) {
-        this.poolconnection = await new sql.ConnectionPool(this.config);
-        this.connected = true;
-        console.log('Database connection successful');
-      } else {
-        console.log('Database already connected');
-      }
-    } catch (error) {
-      console.error(`Error connecting to database: ${JSON.stringify(error)}`);
-    }
-  }
-
-  async disconnect() {
-    try {
-      this.poolconnection.close();
-      console.log('Database connection closed');
-    } catch (error) {
-      console.error(`Error closing database connection: ${error}`);
+      // For pool initialization, see above
+      const [rows, fields] = await this.pool.query(
+        'SELECT * FROM `organization`',
+      );
+      console.log(rows);
+      console.log(fields);
+      // Connection is automatically released when query resolves
+    } catch (err) {
+      console.log(err);
     }
   }
 
@@ -68,62 +50,12 @@ export class BoardService {
   }
 
   async getClassMembers(gradeNum, classNum) {
-    const response = await notion.databases.query({
-      database_id: this.studentsDatabaseId,
-      filter: {
-        and: [
-          {
-            property: 'grade',
-            select: {
-              equals: gradeNum,
-            },
-          },
-          {
-            property: 'class',
-            select: {
-              equals: classNum,
-            },
-          },
-        ],
-      },
-    });
-    return response.results;
+    const response = '';
+    return response;
   }
 
   async getClassBoard(checkedDate, gradeNum, classNum) {
-    const response = await notion.databases.query({
-      database_id: this.checkDatabaseId,
-      filter: {
-        and: [
-          {
-            property: 'grade',
-            rollup: {
-              any: {
-                select: {
-                  equals: gradeNum,
-                },
-              },
-            },
-          },
-          {
-            property: 'class',
-            rollup: {
-              any: {
-                select: {
-                  equals: gradeNum,
-                },
-              },
-            },
-          },
-          {
-            property: 'date',
-            date: {
-              equals: checkedDate,
-            },
-          },
-        ],
-      },
-    });
-    return response.results;
+    const response = '';
+    return response;
   }
 }
