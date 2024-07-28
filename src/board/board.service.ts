@@ -11,50 +11,49 @@ export class BoardService {
 
   constructor() {
     this.pool = pool;
+    // this.checkConnection();
   }
 
   async checkConnection() {
     try {
       // For pool initialization, see above
-      const [rows, fields] = await this.pool.query(
-        'SELECT * FROM `organization`',
-      );
+      const [rows, fields] = await this.pool.query('SELECT * FROM `users`');
+      console.log(rows); // RowDataPacket[]
       // Connection is automatically released when query resolves
     } catch (err) {
       console.log(err);
     }
   }
 
-  async getBoard(
-    checkedDate: string,
-    gradeNumber: number,
-    classNumber: number,
-  ) {
+  async getBoard(checkedDate: Date, gradeNumber: number, classNumber: number) {
     // 모든 학생 리스트 가져오기
-    const classMembers = await this.getClassMembers(gradeNumber, classNumber);
-
-    const classBoard = await this.getClassBoard(
-      checkedDate,
+    const classMembers = await this.getClassMembers(
       gradeNumber,
       classNumber,
+      checkedDate,
     );
 
     // classBoard의 id값을 배열로 만듭니다.
-    const result = [];
-    result.push(classMembers);
-    result.push(classBoard);
-
-    return result;
+    return classMembers;
   }
 
-  async getClassMembers(gradeNum, classNum) {
-    const response = '';
-    return response;
-  }
-
-  async getClassBoard(checkedDate, gradeNum, classNum) {
-    const response = '';
-    return response;
+  async getClassMembers(gradeNum: number, classNum: number, checkedDate: Date) {
+    const formattedDate = this.formatDate(checkedDate);
+    try {
+      const [rows] = await this.pool.execute(
+        `SELECT *
+         FROM users u
+         JOIN organization o ON o.userId = u.id
+         JOIN board_check bc ON bc.organizationId = o.id
+         WHERE o.grade = ? AND o.class = ? AND bc.date = ?`,
+        [gradeNum, classNum, formattedDate],
+      );
+      const response = rows;
+      return response;
+    } catch (error) {
+      console.error('Error fetching class members:', error);
+      throw error;
+    }
   }
 
   async addUserFromCsv() {
@@ -179,6 +178,40 @@ export class BoardService {
       }
     } catch (error) {
       console.error('Error fetching board:', error);
+      throw error;
+    }
+  }
+
+  formatDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  async checkAttendance(checkId: number) {
+    try {
+      const [rows] = await this.pool.execute(
+        `SELECT board_check
+         FROM board_check
+         WHERE id = ?`,
+        [checkId],
+      );
+      if (rows.length > 0) {
+        let result = 1;
+        if (rows[0].board_check.readInt8(0) === 1) {
+          result = 0;
+        }
+        await this.pool.execute(
+          `UPDATE board_check
+           SET board_check = ?
+           WHERE id = ?`,
+          [result, checkId],
+        );
+        return result;
+      }
+    } catch (error) {
+      console.error('Error checking attendance:', error);
       throw error;
     }
   }

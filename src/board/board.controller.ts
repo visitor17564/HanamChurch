@@ -25,13 +25,21 @@ export class BoardController {
     @Param('class') classNumber: number,
     @Req() req: any,
   ) {
+    const checkDate = new Date(date);
     const data = await this.boardService.getBoard(
-      date,
+      checkDate,
       gradeNumber,
       classNumber,
     );
 
     const response = new ResponseDto(true, '반출석부 조회 완료!', data);
+    return response;
+  }
+
+  @Patch('/checkAttendance/:checkId')
+  async checkAttendance(@Param('checkId') checkId: number) {
+    const data = await this.boardService.checkAttendance(checkId);
+    const response = new ResponseDto(true, '출석 완료!', data);
     return response;
   }
 }
