@@ -14,7 +14,7 @@ function wrapClass() {
     button.classList.add('gradeButton');
     button.classList.add('contentText');
     button.onclick = () => {
-      location.href = `/views/html/attendance.html?grade=${grade}&class=${i}`;
+      location.href = `/attendance?grade=${grade}&class=${i}`;
     };
     button.innerHTML = `<h2>🐤 ${i}반</h2>`;
     classDiv.appendChild(button);

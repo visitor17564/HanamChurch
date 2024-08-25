@@ -1,13 +1,23 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Render } from '@nestjs/common';
 import { AppService } from './app.service';
-import { QueryDatabaseResponse } from '@notionhq/client/build/src/api-endpoints';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @Render('index')
+  root() {}
+
+  @Get('choose-class')
+  @Render('choose-class')
+  async goToChooseClass() {
+    return;
+  }
+
+  @Get('attendance')
+  @Render('attendance')
+  async goToAttendance() {
+    return;
   }
 }

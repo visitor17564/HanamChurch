@@ -15,7 +15,7 @@ export class BoardService {
     try {
       // For pool initialization, see above
       const [rows, fields] = await this.pool.query('SELECT * FROM `users`');
-      console.log(rows); // RowDataPacket[]
+      console.log(rows, fields);
       // Connection is automatically released when query resolves
     } catch (err) {
       console.log(err);
