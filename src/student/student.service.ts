@@ -37,6 +37,5 @@ export class StudentService {
       console.error('Error fetching class members:', error);
       throw error;
     }
-    return studentInfo;
   }
 }
