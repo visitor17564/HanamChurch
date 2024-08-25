@@ -1,9 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { Client } from '@notionhq/client';
 import { pool } from '../mssql';
 import * as fs from 'fs';
-
-const notion = new Client({ auth: process.env.NOTION_API_KEY });
 
 @Injectable()
 export class BoardService {

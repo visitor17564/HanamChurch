@@ -1,15 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Query,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Patch, Param, Req } from '@nestjs/common';
 import { BoardService } from './board.service';
 import { ResponseDto } from 'src/ResponseDTO/response-dto';
 

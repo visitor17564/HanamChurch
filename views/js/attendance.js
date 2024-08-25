@@ -118,6 +118,7 @@ class Attendance {
     console.log(response);
     this.wrapAttendance(response.data);
     this.setStudentEventListener();
+    this.addNameEventListener();
   }
 
   makeDate(date) {
@@ -263,13 +264,17 @@ class Attendance {
           </g>
         </svg>
         `;
-      const userId = item.id;
+      const userId = item.userId;
       const organizationId = item.organizationId;
       const checkId = item.id;
       const isOnList = item.is_on_list.data[0];
+      let newFriendSpan = '';
+      if (!isOnList) {
+        newFriendSpan = `&nbsp;<span class="codeGreen">새친구</span>`;
+      }
       const div = `
-      <div class="attendanceDiv" data-userId="${userId}" data-organizationId="${organizationId}">
-        <div class="name">🐤 ${name}</div>
+      <div class="attendanceDiv">
+        <div class="name" data-userId="${userId}" data-organizationId="${organizationId}">🐤 ${name} ${newFriendSpan}</div>
         <div class="check" data-checkId="${checkId}" data-isOnList="${isOnList}">${checkSvg}</div>
       </div>
       `;
@@ -401,5 +406,33 @@ class Attendance {
 
     // 로딩 종료
     exBox.style.display = 'none';
+  }
+
+  addNameEventListener() {
+    const nameDivs = document.querySelectorAll('.name');
+    nameDivs.forEach((nameDiv) => {
+      nameDiv.addEventListener('click', async () => {
+        this.openStudentModal();
+      });
+    });
+    document
+      .querySelector('.FLOATING_DIV_MASK')
+      .addEventListener('click', () => {
+        this.closeStudentModal();
+      });
+    document
+      .getElementById('modal-close-button')
+      .addEventListener('click', () => {
+        this.closeStudentModal();
+      });
+    console.log('안끝남?');
+  }
+
+  openStudentModal() {
+    document.getElementById('studentDetails').style.display = 'block';
+  }
+
+  closeStudentModal() {
+    document.getElementById('studentDetails').style.display = 'none';
   }
 }
