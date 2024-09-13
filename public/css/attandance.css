@@ -132,6 +132,7 @@ body {
   justify-content: center;
   align-items: center;
   gap: 5%;
+  background-color: white;
 }
 
 .dateDiv {
