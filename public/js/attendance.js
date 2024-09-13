@@ -21,6 +21,7 @@ class Attendance {
     this.totalOnList = 0;
     this.checkNewCount = 0;
     this.totalNewCount = 0;
+    this.students = {};
   }
 
   async wrapClassDiv() {
@@ -115,7 +116,10 @@ class Attendance {
       `http://localhost:3000/board/viewBoard/${date}/${parseInt(grade)}/${parseInt(classNum)}`,
     );
     const response = await data.json();
-    console.log(response);
+    for (let i = 0; i < response.data.length; i++) {
+      this.students[response.data[i].userId] = response.data[i];
+    }
+    console.log(this.students);
     this.wrapAttendance(response.data);
     this.setStudentEventListener();
     this.addNameEventListener();
@@ -411,8 +415,8 @@ class Attendance {
   addNameEventListener() {
     const nameDivs = document.querySelectorAll('.name');
     nameDivs.forEach((nameDiv) => {
-      nameDiv.addEventListener('click', async () => {
-        this.openStudentModal();
+      nameDiv.addEventListener('click', async (event) => {
+        this.openStudentModal(event);
       });
     });
     document
@@ -425,14 +429,47 @@ class Attendance {
       .addEventListener('click', () => {
         this.closeStudentModal();
       });
-    console.log('안끝남?');
   }
 
-  openStudentModal() {
+  async openStudentModal(event) {
+    const userId = event.target.dataset.userid;
+    // this.students에서 key 값이 userId인 value를 가져옵니다.
+    const student = this.students[userId];
+    if (student.name) {
+      document.getElementById('name').value = student.name;
+    }
+    if (student.phone) {
+      document.getElementById('mobile2').value = student.phone.split('-')[1];
+      document.getElementById('mobile3').value = student.phone.split('-')[2];
+    }
+    if (student.birth) {
+      const birthDate = new Date(student.birth);
+      const year = birthDate.getFullYear();
+      const month = String(birthDate.getMonth() + 1).padStart(2, '0');
+      const day = String(birthDate.getDate()).padStart(2, '0');
+      document.getElementById('birthday').value = `${year}-${month}-${day}`;
+    }
+    if (student.created_at) {
+      const regDate = new Date(student.created_at);
+      const year2 = regDate.getFullYear();
+      const month2 = String(regDate.getMonth() + 1).padStart(2, '0');
+      const day2 = String(regDate.getDate()).padStart(2, '0');
+      document.getElementById('regdate').value = `${year2}-${month2}-${day2}`;
+    }
+    const checkCount = await this.getStudentCheckCount(student.organizationId);
+    document.getElementById('checkCount').innerText = checkCount;
     document.getElementById('studentDetails').style.display = 'block';
   }
 
   closeStudentModal() {
     document.getElementById('studentDetails').style.display = 'none';
+  }
+
+  async getStudentCheckCount(organizationId) {
+    const data = await fetch(
+      `http://localhost:3000/student/checkCount/${organizationId}`,
+    );
+    const response = await data.json();
+    return response.data[0]['COUNT(*)'];
   }
 }

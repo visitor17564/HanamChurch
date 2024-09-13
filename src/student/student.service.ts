@@ -38,4 +38,21 @@ export class StudentService {
       throw error;
     }
   }
+
+  async getStudentCheckCount(organizationId) {
+    try {
+      const [rows] = await this.pool.execute(
+        `SELECT COUNT(*)
+         FROM board_check
+         WHERE organizationId = ?
+         and board_check = 1`,
+        [organizationId],
+      );
+      const response = rows;
+      return response;
+    } catch (error) {
+      console.error('Error fetching class members:', error);
+      throw error;
+    }
+  }
 }

@@ -8,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/reset.css">
   <link rel="stylesheet" href="/css/attandance.css">
+  <link rel="stylesheet" href="/css/student.css">
   <script type="module" src="/js/attendance.js"></script>
   <title>하남교회 고등부 출석부</title>
 </head>
@@ -44,7 +45,64 @@
                     </span>
                 </div>
                 <div id="studentInfo" class="studentInfo">
-                    sample
+                  <table class="studentTable">
+                      <tbody>
+                        <tr>
+                            <th class="studentDetailTitle">🫠 이름</th>
+                        </tr>
+                        <tr>
+                            <td><input type="text" name="name" id="name" placeholder="이름"></td>
+                        </tr>
+                        <tr>
+                            <th class="studentDetailTitle">📱 전화번호</th>
+                        </tr>
+                        <tr>
+                            <td style="width: 70%;">
+                                <select name="mobile1" id="mobile1" title="010">
+                                    <option value="010">010</option><option value="011">011</option><option value="016">016</option><option value="017">017</option><option value="019">019</option></select>
+                                <span>-</span>
+                                <input type="tel" name="mobile2" title="1234" id="mobile2" value="" maxlength="4">
+                                <span>-</span>
+                                <input type="tel" name="mobile3" title="5678" id="mobile3" value="" maxlength="4">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="studentDetailTitle">🎂 생일</th>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input type="date" name="birthday" id="birthday" placeholder="생일">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="studentDetailTitle">📆 등록일</th>
+                        </tr>
+                        <tr>
+                            <td>
+                              <input type="date" name="regdate" id="regdate" placeholder="등록일">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="studentDetailTitle">✅ 출석횟수</th>
+                        </tr>
+                        <tr>
+                            <td>
+                              <span id="checkCount">0</span>/<span>53</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="studentDetailTitle">💬 코멘트</th>
+                        </tr>
+                        <tr>
+                          <td>
+                            <textarea name="comment" id="comment" placeholder="코멘트"></textarea>
+                          </td>
+                        </tr>
+                    </tbody>
+                  </table>
+                  <div class="saveStudent">
+                    <button id="saveStudent" class="saveStudentButton">수정하기</button>
+                  </div>
                 </div>
             </div>
         </div>
