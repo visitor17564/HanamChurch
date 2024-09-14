@@ -7,12 +7,14 @@
   text-align: left;
 }
 
-#name {
+#name,
+#school {
   border: none;
 }
 
-#mobile2, #mobile3 {
-  width:25%;
+#mobile2,
+#mobile3 {
+  width: 25%;
 }
 
 #comment {
