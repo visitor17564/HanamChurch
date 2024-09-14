@@ -14,4 +14,12 @@ export class StudentController {
     const response = new ResponseDto(true, '출석횟수 조회 완료!', data);
     return response;
   }
+
+  @Patch('/updateStudent/:studentId')
+  async updateStudent(@Param('studentId') studentId: number, @Req() req) {
+    const data = await this.studentService.updateStudent(studentId, req.body);
+
+    const response = new ResponseDto(true, '학생 정보 수정 완료!', data);
+    return response;
+  }
 }

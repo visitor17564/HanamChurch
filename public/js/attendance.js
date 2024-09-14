@@ -22,6 +22,7 @@ class Attendance {
     this.checkNewCount = 0;
     this.totalNewCount = 0;
     this.students = {};
+    this.selectedStudent = {};
   }
 
   async wrapClassDiv() {
@@ -362,6 +363,7 @@ class Attendance {
         }
       });
     });
+    // 수정버튼 누르면 학생정보 수정
   }
 
   async boardCheck(checkId) {
@@ -414,11 +416,14 @@ class Attendance {
 
   addNameEventListener() {
     const nameDivs = document.querySelectorAll('.name');
+    // 이름클릭시 모달창이 뜨도록 합니다.
     nameDivs.forEach((nameDiv) => {
       nameDiv.addEventListener('click', async (event) => {
         this.openStudentModal(event);
       });
     });
+
+    // 모달창 닫기
     document
       .querySelector('.FLOATING_DIV_MASK')
       .addEventListener('click', () => {
@@ -428,6 +433,31 @@ class Attendance {
       .getElementById('modal-close-button')
       .addEventListener('click', () => {
         this.closeStudentModal();
+      });
+
+    //  저장버튼 누르면 학생정보 저장
+    document
+      .getElementById('saveStudent')
+      .addEventListener('click', async () => {
+        const name = document.getElementById('name').value;
+        const mobile2 = document.getElementById('mobile2').value;
+        const mobile3 = document.getElementById('mobile3').value;
+        const birthday = document.getElementById('birthday').value;
+        const regdate = document.getElementById('regDate').value;
+        const data = {
+          name,
+          phone: `010-${mobile2}-${mobile3}`,
+          birth: birthday,
+          created_at: regdate,
+          organizationId,
+        };
+        const response = await this.updateStudent(data);
+        if (response.data === 1) {
+          alert('저장되었습니다.');
+          this.closeStudentModal();
+        } else {
+          alert('저장에 실패했습니다.');
+        }
       });
   }
 
@@ -454,11 +484,17 @@ class Attendance {
       const year2 = regDate.getFullYear();
       const month2 = String(regDate.getMonth() + 1).padStart(2, '0');
       const day2 = String(regDate.getDate()).padStart(2, '0');
-      document.getElementById('regdate').value = `${year2}-${month2}-${day2}`;
+      document.getElementById('regDate').value = `${year2}-${month2}-${day2}`;
+    }
+    if (student.school) {
+      console.log(school);
+      document.getElementById('school').value = student.school;
     }
     const checkCount = await this.getStudentCheckCount(student.organizationId);
     document.getElementById('checkCount').innerText = checkCount;
     document.getElementById('studentDetails').style.display = 'block';
+    this.selectedStudent['id'] = student.id;
+    this.selectedStudent['organizationId'] = student.organizationId;
   }
 
   closeStudentModal() {
@@ -471,5 +507,18 @@ class Attendance {
     );
     const response = await data.json();
     return response.data[0]['COUNT(*)'];
+  }
+
+  updateStudent(data) {
+    return fetch(
+      `http://localhost:3000/student/updateStudent/${this.selectedStudent.id}`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      },
+    ).then((response) => response.json());
   }
 }

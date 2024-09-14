@@ -55,4 +55,24 @@ export class StudentService {
       throw error;
     }
   }
+
+  async updateStudent(studentId, body) {
+    try {
+      // 학생 기본정보 수정
+      const birth = new Date(body.birth);
+      const created_at = new Date(body.created_at);
+      const [rows] = await this.pool.execute(
+        `UPDATE users
+         SET name = ?, phone = ?, birth = ?, created_at = ?
+         WHERE id = ?`,
+        [body.name, body.phone, birth, created_at, studentId],
+      );
+
+      const response = rows;
+      return response;
+    } catch (error) {
+      console.error('Error fetching class members:', error);
+      throw error;
+    }
+  }
 }
