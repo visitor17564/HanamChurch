@@ -444,15 +444,17 @@ class Attendance {
         const mobile3 = document.getElementById('mobile3').value;
         const birthday = document.getElementById('birthday').value;
         const regdate = document.getElementById('regDate').value;
+        const school = document.getElementById('school').value;
         const data = {
           name,
           phone: `010-${mobile2}-${mobile3}`,
           birth: birthday,
           created_at: regdate,
-          organizationId,
+          organizationId: this.selectedStudent.organizationId,
+          school,
         };
         const response = await this.updateStudent(data);
-        if (response.data === 1) {
+        if (response.success) {
           alert('저장되었습니다.');
           this.closeStudentModal();
         } else {
@@ -493,7 +495,8 @@ class Attendance {
     const checkCount = await this.getStudentCheckCount(student.organizationId);
     document.getElementById('checkCount').innerText = checkCount;
     document.getElementById('studentDetails').style.display = 'block';
-    this.selectedStudent['id'] = student.id;
+    console.log(student);
+    this.selectedStudent['id'] = student.userId;
     this.selectedStudent['organizationId'] = student.organizationId;
   }
 

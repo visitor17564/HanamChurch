@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { pool } from '../mssql';
+import { ResponseDto } from 'src/ResponseDTO/response-dto';
 
 @Injectable()
 export class StudentService {
@@ -61,15 +62,22 @@ export class StudentService {
       // 학생 기본정보 수정
       const birth = new Date(body.birth);
       const created_at = new Date(body.created_at);
-      const [rows] = await this.pool.execute(
+      console.log(studentId);
+      await this.pool.execute(
         `UPDATE users
          SET name = ?, phone = ?, birth = ?, created_at = ?
          WHERE id = ?`,
         [body.name, body.phone, birth, created_at, studentId],
       );
 
-      const response = rows;
-      return response;
+      await this.pool.execute(
+        `UPDATE organization
+         SET school = ?
+         WHERE id = ?`,
+        [body.school, body.organizationId],
+      );
+
+      return new ResponseDto(true, '학생 정보 수정 완료!', null);
     } catch (error) {
       console.error('Error fetching class members:', error);
       throw error;
