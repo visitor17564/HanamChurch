@@ -128,6 +128,7 @@ class Attendance {
     }
     this.wrapAttendance(response.data);
     this.wrapAddStudentButton();
+    this.wrapBottomButton();
     this.setStudentEventListener();
     this.modalHelper.addNameEventListener();
     this.modalHelper.addSaveAndAddStudentEventListener();
@@ -224,6 +225,18 @@ class Attendance {
       .addEventListener('click', () => {
         this.modalHelper.openAddStudentModal();
       });
+  }
+
+  // 홈버튼을 만듭니다.
+  wrapBottomButton() {
+    const attendanceDiv = document.querySelector('.wrapAttendance');
+    const div = `
+    <div id="makeStudentModalButton" class="bottomDiv">
+      <a class="goToHome" href="/">🏠 홈으로가기</a>
+      <a class="goToHome" href="https://forms.gle/P6FSyJBXSMoMjjUx6">📝 목양관리</a>
+    </div>
+    `;
+    attendanceDiv.innerHTML += div;
   }
 
   // 합계를 적용합니다.

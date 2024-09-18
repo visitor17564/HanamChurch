@@ -160,6 +160,20 @@ body {
   padding-bottom: 3%;
 }
 
+.bottomDiv {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5%;
+  margin-left: 5%;
+  margin-right: 5%;
+  padding-left: 5%;
+  padding-right: 5%;
+  border: none;
+  padding-top: 3%;
+  padding-bottom: 3%;
+  font-size: 1.5em;
+}
+
 .attendanceDiv .name {
   font-size: 1.2em;
   font-weight: bold;
