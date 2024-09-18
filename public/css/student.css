@@ -40,3 +40,11 @@
   border: none;
   border-radius: 4px;
 }
+
+#addFollow,
+#editFollow,
+#deleteFollow {
+  width: 15%;
+  text-align: center;
+  align-content: center;
+}

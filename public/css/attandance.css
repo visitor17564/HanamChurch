@@ -206,37 +206,50 @@ body {
   font-weight: 600;
 }
 
+.codeRed {
+  line-height: normal;
+  background: #d34e74;
+  color: white;
+  border-radius: 4px;
+  font-size: 50%;
+  padding: 0.2em 0.4em;
+  font-weight: 600;
+}
+
 /* floating div*/
 .studentDetails {
   display: none;
 }
 
 #FLOATING_DIV,
-.FLOATING_DIV_MASK {
+.FLOATING_DIV_MASK,
+.FLOATING_DIV_MASK_FOLLOW {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
 }
-.FLOATING_DIV_MASK {
+.FLOATING_DIV_MASK,
+.FLOATING_DIV_MASK_FOLLOW {
   position: fixed;
   background: rgba(0, 0, 0, 0.7);
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 100;
 }
-.FLOATING_DIV_BLOCK {
+.FLOATING_DIV_BLOCK,
+.FLOATING_DIV_BLOCK_FOLLOW {
   position: fixed;
   top: 10%;
-  z-index: 200;
   width: 100%;
   padding: 0;
   margin: 0 auto;
 }
-.FLOATING_CONTENT {
+
+.FLOATING_CONTENT,
+.FLOATING_CONTENT_FOLLOW {
   margin: 5% 5% 5% 5%;
   background: rgba(255, 255, 255, 1);
   -moz-border-radius: 15px;
@@ -244,8 +257,25 @@ body {
   border-radius: 15px;
 }
 
+.FLOATING_DIV_MASK {
+  z-index: 100;
+}
+
+.FLOATING_DIV_BLOCK {
+  z-index: 200;
+}
+
+.FLOATING_DIV_MASK_FOLLOW {
+  z-index: 300;
+}
+
+.FLOATING_DIV_BLOCK_FOLLOW {
+  z-index: 400;
+}
+
 @media all and (max-width: 400px) {
-  .FLOATING_DIV_BLOCK {
+  .FLOATING_DIV_BLOCK,
+  .FLOATING_DIV_BLOCK_FOLLOW {
     width: 96%;
     padding: 0 2%;
     margin: 0 auto;
@@ -254,6 +284,12 @@ body {
 
 .addModal {
   padding: 20px;
+}
+
+.followModal {
+  padding: 20px;
+  height: 80%;
+  background-color: #59c1d5;
 }
 
 .modal-close-button {
@@ -270,4 +306,60 @@ body {
 
 .studentInfo {
   margin-top: 10%;
+}
+
+.findStudent {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin-top: 5%;
+  gap: 5%;
+}
+
+.chooseFollow {
+  display: flex;
+  flex-direction: row;
+  justify-items: center;
+  justify-content: space-evenly;
+  margin-top: 10px;
+}
+
+#followName {
+  padding: 5px;
+}
+
+.followTd {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+}
+
+.findFollowButton {
+  width: 100px;
+  height: 30px;
+  background-color: white;
+  color: #59c1d5;
+  border: none;
+  border-radius: 4px;
+}
+
+#wrap-follows {
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 5%;
+}
+
+.follow-content {
+  margin: 5% 5% 5% 5%;
+}
+
+#findFollowName {
+  font-size: 1.2em;
+  font-weight: bold;
+  height: 100%;
+  width: 70%;
 }

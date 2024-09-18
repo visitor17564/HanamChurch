@@ -30,6 +30,8 @@
     </div>
   </header>
   <div class="wrapAttendance"></div>
+  
+  {{!-- 학생정보 모달 --}}
   <div id="studentDetails" class="studentDetails">
     <div class="FLOATING_DIV_MASK"></div>
     <div class="FLOATING_DIV_BLOCK">
@@ -103,6 +105,17 @@
                         <tr>
                             <td><input type="text" name="school" id="school" placeholder="학교"></td>
                         </tr>
+                        <tr id="followTr">
+                            <th class="studentDetailTitle">🫡 전도자</th>
+                        </tr>
+                        <tr id="followTr2">
+                          <td class="followTd">
+                            <div id="followName"></div>
+                            <span id="addFollow" class="codeGreen">추가</span>
+                            <span id="editFollow" class="codeGreen">수정</span>
+                            <span id="deleteFollow" class="codeRed">삭제</span>
+                          </td>
+                        </tr>
                         <tr>
                             <th class="studentDetailTitle">💬 코멘트</th>
                         </tr>
@@ -116,6 +129,37 @@
                   <div class="saveStudent">
                     <button id="saveStudent" class="saveStudentButton">수정하기</button>
                     <button id="makeStudent" class="saveStudentButton">등록하기</button>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  {{!-- 전도자 검색모달 --}}
+  <div id="followModal" class="studentDetails">
+    <div class="FLOATING_DIV_MASK_FOLLOW"></div>
+    <div class="FLOATING_DIV_BLOCK_FOLLOW">
+        <div class="FLOATING_CONTENT_FOLLOW">
+            <div id="add-modal-follow" class="followModal">
+                <div id="modal-close-button-follow" class="modal-close-button">
+                    <span>
+                        <svg class="closeSvg" viewBox="0 0 24 24">
+                            <title>닫기</title>
+                            <path d="M4.92893219,19.0710678 C1.02368927,15.1658249 1.02368927,8.83417511 4.92893219,4.92893219 C8.83417511,1.02368927 15.1658249,1.02368927 19.0710678,4.92893219 C22.9763107,8.83417511 22.9763107,15.1658249 19.0710678,19.0710678 C15.1658249,22.9763107 8.83417511,22.9763107 4.92893219,19.0710678 Z"></path>
+                            <path d="M15.5355339 15.5355339L8.46446609 8.46446609M15.5355339 8.46446609L8.46446609 15.5355339"></path>
+                        </svg>
+                    </span>
+                </div>
+                <div id="findStudent" class="studentInfo">
+                  <div class="findStudent">
+                    <input type="text" name="findFollowName" id="findFollowName" placeholder="전도자 이름">
+                    <button id="searchFollow" class="findFollowButton">검색</button>
+                  </div>
+                  <div id="wrap-follows">
+                  </div>
+                  <div class="chooseFollow">
+                    <button id="chooseFollow" class="findFollowButton">선택</button>
                   </div>
                 </div>
             </div>

@@ -15,6 +15,16 @@ export class StudentController {
     return response;
   }
 
+  @Get('findStudentByName/:name')
+  async findStudentByName(@Param('name') name: string) {
+    return await this.studentService.findStudentByName(name);
+  }
+
+  @Get('findStudentById/:Id')
+  async findStudentById(@Param('Id') Id: number) {
+    return await this.studentService.findStudentById(Id);
+  }
+
   @Patch('/updateStudent/:studentId')
   async updateStudent(@Param('studentId') studentId: number, @Req() req) {
     return await this.studentService.updateStudent(studentId, req.body);

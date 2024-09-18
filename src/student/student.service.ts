@@ -58,29 +58,42 @@ export class StudentService {
   }
 
   async updateStudent(studentId, body) {
+    const connection = await this.pool.getConnection();
+    await connection.beginTransaction();
     try {
       // 학생 기본정보 수정
-      const birth = new Date(body.birth);
+      let birth = null;
+      if (body.birth) {
+        birth = new Date(body.birth);
+      }
+      let follow = null;
+      if (body.follow) {
+        follow = body.follow;
+      }
       const created_at = new Date(body.created_at);
-      console.log(studentId);
-      await this.pool.execute(
+      await connection.execute(
         `UPDATE users
          SET name = ?, phone = ?, birth = ?, created_at = ?
          WHERE id = ?`,
         [body.name, body.phone, birth, created_at, studentId],
       );
 
-      await this.pool.execute(
+      await connection.execute(
         `UPDATE organization
-         SET school = ?
+         SET school = ?, follow = ?
          WHERE id = ?`,
-        [body.school, body.organizationId],
+        [body.school, follow, body.organizationId],
       );
+
+      await connection.commit();
 
       return new ResponseDto(true, '학생 정보 수정 완료!', null);
     } catch (error) {
       console.error('Error fetching class members:', error);
+      await connection.rollback();
       throw error;
+    } finally {
+      connection.release();
     }
   }
 
@@ -99,9 +112,14 @@ export class StudentService {
       // 올해연도를 year에 숫자로 반환합니다.
       const year = new Date().getFullYear();
 
+      let follow = null;
+      if (body.follow) {
+        follow = body.follow;
+      }
+
       const [rows2] = await connection.execute(
-        `INSERT INTO organization (userId, year, department, grade, class, role, school, is_new)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO organization (userId, year, department, grade, class, role, school, is_new, follow)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           rows.insertId,
           year,
@@ -111,6 +129,7 @@ export class StudentService {
           0,
           body.school,
           1,
+          follow,
         ],
       );
 
@@ -131,6 +150,41 @@ export class StudentService {
       throw error;
     } finally {
       connection.release();
+    }
+  }
+
+  async findStudentByName(name) {
+    const searchName = `%${name}%`;
+    try {
+      const [rows] = await this.pool.execute(
+        `SELECT u.id, u.name, o.grade, o.class
+         FROM users u
+         JOIN organization o ON o.userId = u.id
+         WHERE u.name LIKE ?`,
+        [searchName],
+      );
+      const response = rows;
+      return response;
+    } catch (error) {
+      console.error('Error fetching class members:', error);
+      throw error;
+    }
+  }
+
+  async findStudentById(Id) {
+    try {
+      const [rows] = await this.pool.execute(
+        `SELECT u.id, u.name, o.grade, o.class
+         FROM users u
+         JOIN organization o ON o.userId = u.id
+         WHERE u.id = ?`,
+        [Id],
+      );
+      const response = rows;
+      return response;
+    } catch (error) {
+      console.error('Error fetching class members:', error);
+      throw error;
     }
   }
 }
