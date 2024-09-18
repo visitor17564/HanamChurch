@@ -85,6 +85,46 @@ export class StudentService {
         [body.school, follow, body.organizationId],
       );
 
+      console.log(body.comment);
+      if (body.comment) {
+        // 기존 data를 확인합니다.
+        const [rows] = await connection.execute(
+          `SELECT *
+           FROM comments
+           WHERE organizationId = ?`,
+          [body.organizationId],
+        );
+        if (rows.length > 0) {
+          await connection.execute(
+            `UPDATE comments
+             SET comment = ?
+             WHERE organizationId = ?`,
+            [body.comment, body.organizationId],
+          );
+        } else {
+          await connection.execute(
+            `INSERT INTO comments (organizationId, comment)
+             VALUES (?, ?)`,
+            [body.organizationId, body.comment],
+          );
+        }
+      } else {
+        // 기존 data를 확인합니다.
+        const [rows] = await connection.execute(
+          `SELECT *
+            FROM comments
+            WHERE organizationId = ?`,
+          [body.organizationId],
+        );
+        if (rows.length > 0) {
+          await connection.execute(
+            `DELETE FROM comments
+             WHERE organizationId = ?`,
+            [body.organizationId],
+          );
+        }
+      }
+
       await connection.commit();
 
       return new ResponseDto(true, '학생 정보 수정 완료!', null);

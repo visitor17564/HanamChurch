@@ -18,6 +18,7 @@ export class ModalHelper {
         const regdate = document.getElementById('regDate').value;
         const school = document.getElementById('school').value;
         const followDiv = document.getElementById('followName');
+        const comment = document.getElementById('comment').value;
         let follow;
         if (followDiv.innerText !== '') {
           follow = followDiv.dataset.id;
@@ -29,6 +30,7 @@ export class ModalHelper {
           created_at: regdate,
           organizationId: this.selectedStudent.organizationId,
           school,
+          comment,
           follow,
         };
         const response = await this.updateStudent(data);
@@ -197,6 +199,10 @@ export class ModalHelper {
     }
     if (student.school) {
       document.getElementById('school').value = student.school;
+    }
+    console.log(student);
+    if (student.comment) {
+      document.getElementById('comment').value = student.comment;
     }
 
     if (student.is_new.data[0] === 1) {

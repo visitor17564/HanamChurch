@@ -40,10 +40,12 @@ export class BoardService {
       const [rows] = await this.pool.execute(
         `SELECT u.id, u.name, u.gender, u.phone, u.birth, u.created_at, 
                 o.id AS organizationId, o.year, o.department, o.grade, o.class, o.role, o.school, o.is_on_list, o.is_new, o.follow, 
-                bc.id AS checkId, bc.board_check, bc.checkerId
+                bc.id AS checkId, bc.board_check, bc.checkerId,
+                c.id AS commentId, c.comment
          FROM organization o
          LEFT JOIN users u ON o.userId = u.id
          LEFT JOIN board_check bc ON bc.organizationId = o.id AND bc.date = ?
+         LEFT JOIN comments c ON c.organizationId = o.id
          WHERE o.grade = ? AND o.class = ?`,
         [formattedDate, gradeNum, classNum],
       );
