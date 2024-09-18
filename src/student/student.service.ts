@@ -83,4 +83,54 @@ export class StudentService {
       throw error;
     }
   }
+
+  async createStudent(body) {
+    const connection = await this.pool.getConnection();
+    await connection.beginTransaction();
+    try {
+      const birth = new Date(body.birth);
+      // user테이블에 학생정보를 추가하고 id를 반환합니다.
+      const [rows] = await connection.execute(
+        `INSERT INTO users (name, gender, phone, birth, created_at)
+         VALUES (?, ?, ?, ?, ?)`,
+        [body.name, parseInt(body.gender), body.phone, birth, new Date()],
+      );
+
+      // 올해연도를 year에 숫자로 반환합니다.
+      const year = new Date().getFullYear();
+
+      const [rows2] = await connection.execute(
+        `INSERT INTO organization (userId, year, department, grade, class, role, school, is_new)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          rows.insertId,
+          year,
+          '고등부',
+          body.grade,
+          body.class,
+          0,
+          body.school,
+          1,
+        ],
+      );
+
+      if (body.comment) {
+        await connection.execute(
+          `INSERT INTO comments (organizationId, comment)
+           VALUES (?, ?)`,
+          [rows2.insertId, body.comment],
+        );
+      }
+
+      await connection.commit();
+
+      return new ResponseDto(true, '학생 생성 완료!', null);
+    } catch (error) {
+      console.error('Error fetching class members:', error);
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+  }
 }

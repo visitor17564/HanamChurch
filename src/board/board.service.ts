@@ -38,12 +38,14 @@ export class BoardService {
     const formattedDate = this.formatDate(checkedDate);
     try {
       const [rows] = await this.pool.execute(
-        `SELECT *
-         FROM users u
-         JOIN organization o ON o.userId = u.id
-         JOIN board_check bc ON bc.organizationId = o.id
-         WHERE o.grade = ? AND o.class = ? AND bc.date = ?`,
-        [gradeNum, classNum, formattedDate],
+        `SELECT u.id, u.name, u.gender, u.phone, u.birth, u.created_at, 
+                o.id AS organizationId, o.year, o.department, o.grade, o.class, o.role, o.school, o.is_on_list, o.is_new, o.follow, 
+                bc.id AS checkId, bc.board_check, bc.checkerId
+         FROM organization o
+         LEFT JOIN users u ON o.userId = u.id
+         LEFT JOIN board_check bc ON bc.organizationId = o.id AND bc.date = ?
+         WHERE o.grade = ? AND o.class = ?`,
+        [formattedDate, gradeNum, classNum],
       );
       const response = rows;
       return response;
@@ -173,6 +175,28 @@ export class BoardService {
           [organizationId, date, check, checkerId],
         );
       }
+    } catch (error) {
+      console.error('Error fetching board:', error);
+      throw error;
+    }
+  }
+
+  async makeAttendance(
+    organizationId: number,
+    date: Date,
+    checkId: number | null,
+  ) {
+    let checkerId = null;
+    if (checkId) {
+      checkerId = checkId;
+    }
+    try {
+      const [row] = await this.pool.execute(
+        `INSERT INTO board_check (organizationId, date, board_check, checkerId)
+          VALUES (?, ?, 1, ?)`,
+        [organizationId, date, checkerId],
+      );
+      return row.insertId;
     } catch (error) {
       console.error('Error fetching board:', error);
       throw error;

@@ -3,18 +3,22 @@
   border-collapse: separate; /* border-spacing을 사용하려면 separate로 설정 */
   border-spacing: 10px; /* 셀 간의 간격을 10px로 설정 */
 }
-.studentDetailTitle {
+.studentDetailTitle,
+#checkCountTr,
+#regDateTr {
   text-align: left;
 }
 
 #name,
-#school {
+#school,
+#gender {
   border: none;
 }
 
 #mobile2,
 #mobile3 {
-  width: 25%;
+  width: 20%;
+  text-align: center;
 }
 
 #comment {
@@ -24,6 +28,8 @@
 .saveStudent {
   margin-top: 10px;
   text-align: center;
+  display: flex;
+  justify-content: center;
 }
 
 .saveStudentButton {

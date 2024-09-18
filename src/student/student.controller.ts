@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Param, Req } from '@nestjs/common';
+import { Controller, Get, Patch, Param, Req, Post } from '@nestjs/common';
 import { StudentService } from './student.service';
 import { ResponseDto } from 'src/ResponseDTO/response-dto';
 
@@ -18,5 +18,16 @@ export class StudentController {
   @Patch('/updateStudent/:studentId')
   async updateStudent(@Param('studentId') studentId: number, @Req() req) {
     return await this.studentService.updateStudent(studentId, req.body);
+  }
+
+  @Post('/makeStudent')
+  async makeStudent(@Req() req) {
+    if (!req.body.name) {
+      return new ResponseDto(false, '이름을 입력해주세요!', null);
+    }
+    if (req.body.gender === '') {
+      return new ResponseDto(false, '성별을 입력해주세요!', null);
+    }
+    return await this.studentService.createStudent(req.body);
   }
 }

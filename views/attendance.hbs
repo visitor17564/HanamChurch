@@ -51,7 +51,14 @@
                             <th class="studentDetailTitle">🫠 이름</th>
                         </tr>
                         <tr>
-                            <td><input type="text" name="name" id="name" placeholder="이름"></td>
+                            <td>
+                              <input type="text" name="name" id="name" placeholder="이름">
+                              <select title="gender" name="gender" id="gender">
+                                <option value="" disabled selected>성별 선택</option>
+                                <option value="1">🚹</option>
+                                <option value="0">🚺</option>
+                              </select>
+                            </td>
                         </tr>
                         <tr>
                             <th class="studentDetailTitle">📱 전화번호</th>
@@ -74,18 +81,18 @@
                                 <input type="date" name="birthday" id="birthday" placeholder="생일">
                             </td>
                         </tr>
-                        <tr>
+                        <tr id="regDateTr">
                             <th class="studentDetailTitle">📆 등록일</th>
                         </tr>
-                        <tr>
+                        <tr id="regDateTr2">
                             <td>
                               <input type="date" name="regDate" id="regDate" placeholder="등록일">
                             </td>
                         </tr>
-                        <tr>
+                        <tr id="checkCountTr">
                             <th class="studentDetailTitle">✅ 출석횟수</th>
                         </tr>
-                        <tr>
+                        <tr id="checkCountTr2">
                             <td>
                               <span id="checkCount">0</span>/<span>53</span>
                             </td>
@@ -108,6 +115,7 @@
                   </table>
                   <div class="saveStudent">
                     <button id="saveStudent" class="saveStudentButton">수정하기</button>
+                    <button id="makeStudent" class="saveStudentButton">등록하기</button>
                   </div>
                 </div>
             </div>

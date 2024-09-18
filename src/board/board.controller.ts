@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Param, Req } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Param, Req } from '@nestjs/common';
 import { BoardService } from './board.service';
 import { ResponseDto } from 'src/ResponseDTO/response-dto';
 
@@ -12,7 +12,6 @@ export class BoardController {
     @Param('date') date: string,
     @Param('grade') gradeNumber: number,
     @Param('class') classNumber: number,
-    @Req() req: any,
   ) {
     const checkDate = new Date(date);
     const data = await this.boardService.getBoard(
@@ -28,6 +27,22 @@ export class BoardController {
   @Patch('/checkAttendance/:checkId')
   async checkAttendance(@Param('checkId') checkId: number) {
     const data = await this.boardService.checkAttendance(checkId);
+    const response = new ResponseDto(true, '출석 완료!', data);
+    return response;
+  }
+
+  @Post('makeAttendance/:organizationId')
+  async makeAttendance(
+    @Param('organizationId') organizationId: number,
+    @Req() req,
+  ) {
+    const date = new Date(req.body.date);
+    const checkId = req.body.checkId;
+    const data = await this.boardService.makeAttendance(
+      organizationId,
+      date,
+      checkId,
+    );
     const response = new ResponseDto(true, '출석 완료!', data);
     return response;
   }

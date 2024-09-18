@@ -25,6 +25,7 @@ class Attendance {
     this.selectedStudent = {};
   }
 
+  // 학년, 반, 선생님 이름을 div로 만들어서 wrapGrade에 넣습니다.
   async wrapClassDiv() {
     // parameter에서 grade를 가져옵니다.
     // 선생님 이름을 가져옵니다.
@@ -37,6 +38,7 @@ class Attendance {
     gradeDiv.innerHTML = div;
   }
 
+  // 출석부를 만듭니다.
   async makeAttendance() {
     await this.wrapDate(this.date);
     await this.simulateLoading();
@@ -44,6 +46,7 @@ class Attendance {
     await this.stopLoading();
   }
 
+  // 학년, 반에 따른 선생님을 만듭니다.
   makeTeacher(grade, classNum) {
     let teacherName = '';
     switch (grade) {
@@ -112,20 +115,24 @@ class Attendance {
     return teacherName;
   }
 
+  // 학년, 반, 날짜에 따른 출석부를 가져옵니다.
   async getBoard(grade, classNum, date) {
     const data = await fetch(
       `http://localhost:3000/board/viewBoard/${date}/${parseInt(grade)}/${parseInt(classNum)}`,
     );
     const response = await data.json();
     for (let i = 0; i < response.data.length; i++) {
-      this.students[response.data[i].userId] = response.data[i];
+      this.students[response.data[i].id] = response.data[i];
     }
     console.log(this.students);
     this.wrapAttendance(response.data);
+    this.wrapAddStudentButton();
     this.setStudentEventListener();
     this.addNameEventListener();
+    this.addSaveAndAddStudentEventListener();
   }
 
+  // date를 yyyy-mm-dd string 형식으로 바꿉니다.
   makeDate(date) {
     // 오늘이 일요일이 아니면 가장 직전의 일요일을 가져옵니다.
     let sundayString = '';
@@ -167,6 +174,7 @@ class Attendance {
     return sundayString;
   }
 
+  // date를 div로 만들어서 wrapDate에 넣습니다.
   wrapDate(date) {
     const dateDiv = document.querySelector('.wrapDate');
     const div = `
@@ -177,6 +185,7 @@ class Attendance {
     dateDiv.innerHTML = div;
   }
 
+  // 이전주로 이동합니다.
   async goToBeforeWeek() {
     // this.date를 date객체로 바꾸고 thisDate로 선언합니다.
     const thisDate = new Date(this.date);
@@ -191,6 +200,7 @@ class Attendance {
     this.setMoveDateEventlistener();
   }
 
+  // 다음주로 이동합니다.
   async goToAfterWeek() {
     const dateObj = new Date(this.date);
     const afterWeek = new Date(
@@ -203,6 +213,7 @@ class Attendance {
     this.setMoveDateEventlistener();
   }
 
+  // 선택한 주로 이동합니다.
   async goToThisWeek(event, dateDiv) {
     // 만약 dateDiv.value가 일요일이 아니라면 일요일로 바꿉니다.
     const dateObj = new Date(event.target.value);
@@ -226,6 +237,7 @@ class Attendance {
     this.setMoveDateEventlistener();
   }
 
+  // 출석부를 div로 만들어서 wrapAttendance에 넣습니다.
   wrapAttendance(items) {
     const attendanceDiv = document.querySelector('.wrapAttendance');
     // 기존에 있던 div들을 지웁니다.
@@ -241,12 +253,16 @@ class Attendance {
 
     items.forEach((item) => {
       totalOnClass += 1;
-      if (item.board_check.data[0] === 1) {
-        checkOnClass++;
-        if (item.is_on_list.data[0] === 1) {
-          checkOnList++;
-        } else {
-          checkNewCount++;
+      let check = 0;
+      if (item.board_check !== null) {
+        if (item.board_check.data[0] === 1) {
+          check = item.board_check.data[0];
+          checkOnClass++;
+          if (item.is_on_list.data[0] === 1) {
+            checkOnList++;
+          } else {
+            checkNewCount++;
+          }
         }
       }
       if (item.is_on_list.data[0] === 1) {
@@ -257,7 +273,6 @@ class Attendance {
 
       // div뿌리기
       const name = item.name;
-      const check = item.board_check.data[0];
       const checkColor = check ? 'green' : 'gray';
       const checkSvg = `
         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="${checkColor}" version="1.1" class="checkIcon" width="2em" height="2em" viewBox="0 0 305.002 305.002" xml:space="preserve">
@@ -269,9 +284,9 @@ class Attendance {
           </g>
         </svg>
         `;
-      const userId = item.userId;
+      const userId = item.id;
       const organizationId = item.organizationId;
-      const checkId = item.id;
+      const checkId = item.checkId;
       const isOnList = item.is_on_list.data[0];
       let newFriendSpan = '';
       if (!isOnList) {
@@ -280,7 +295,7 @@ class Attendance {
       const div = `
       <div class="attendanceDiv">
         <div class="name" data-userId="${userId}" data-organizationId="${organizationId}">🐤 ${name} ${newFriendSpan}</div>
-        <div class="check" data-checkId="${checkId}" data-isOnList="${isOnList}">${checkSvg}</div>
+        <div class="check" data-checkId="${checkId}" data-isOnList="${isOnList}" data-organizationId="${organizationId}">${checkSvg}</div>
       </div>
       `;
       attendanceDiv.innerHTML += div;
@@ -297,6 +312,24 @@ class Attendance {
     this.wrapSumCount();
   }
 
+  // 새친구 추가 버튼을 만듭니다.
+  wrapAddStudentButton() {
+    const attendanceDiv = document.querySelector('.wrapAttendance');
+    const div = `
+    <div id="makeStudentModalButton" class="attendanceDiv">
+      <div class="name">🥳 새 친구 추가</div>
+      <div class="check">➕</div>
+    </div>
+    `;
+    attendanceDiv.innerHTML += div;
+    document
+      .getElementById('makeStudentModalButton')
+      .addEventListener('click', () => {
+        this.openAddStudentModal();
+      });
+  }
+
+  // 합계를 적용합니다.
   async wrapSumCount() {
     document.querySelector('.checkOnClass').innerText = this.checkOnClass;
     document.querySelector('.totalOnClass').innerText = this.totalOnClass;
@@ -306,6 +339,7 @@ class Attendance {
     document.querySelector('.totalNewCount').innerText = this.totalNewCount;
   }
 
+  // 날짜를 이동하는 이벤트리스너를 설정합니다.
   setMoveDateEventlistener() {
     const beforeWeek = document.querySelector('.goToBeforeWeek');
     beforeWeek.addEventListener('click', () => {
@@ -325,6 +359,7 @@ class Attendance {
     });
   }
 
+  // 7일 뒤가 today보다 크다면 afterWeek를 비활성화합니다.
   checkAfterWeek() {
     // this.date를 date객체로 바꾸고 thisDate로 선언합니다.
     const thisDate = new Date(this.date);
@@ -343,6 +378,7 @@ class Attendance {
     return true;
   }
 
+  // 학생의 출석을 체크하는 이벤트리스너를 설정합니다.
   setStudentEventListener() {
     const checkDivArray = document.querySelectorAll('.check');
     checkDivArray.forEach((checkDiv) => {
@@ -351,11 +387,16 @@ class Attendance {
         const targetDiv = event.target.closest('.check');
         const checkId = targetDiv.dataset.checkid;
         const isOnList = targetDiv.dataset.isonlist;
-        const response = await this.boardCheck(checkId);
-        if (response.data === 1) {
+        const organizationId = targetDiv.dataset.organizationid;
+        const response = await this.boardCheck(checkId, organizationId);
+        console.log(response.data);
+        if (response.data !== 0) {
           // targetDiv 아래 svg의 fill을 green으로 바꿉니다.
           targetDiv.querySelector('svg').setAttribute('fill', 'green');
-          this.changeCount(response.data, isOnList);
+          this.changeCount(1, isOnList);
+          if (response.data !== 1) {
+            targetDiv.dataset.checkid = response.data;
+          }
         } else {
           // targetDiv 아래 svg의 fill을 gray으로 바꿉니다.
           targetDiv.querySelector('svg').setAttribute('fill', 'gray');
@@ -366,75 +407,8 @@ class Attendance {
     // 수정버튼 누르면 학생정보 수정
   }
 
-  async boardCheck(checkId) {
-    const data = await fetch(
-      `http://localhost:3000/board/checkAttendance/${checkId}`,
-      {
-        method: 'PATCH',
-      },
-    );
-    const response = await data.json();
-    return response;
-  }
-
-  changeCount(data, isOnList) {
-    if (data === 1) {
-      this.checkOnClass += 1;
-      if (isOnList === '1') {
-        this.checkOnList += 1;
-      } else {
-        this.checkNewCount += 1;
-      }
-    } else {
-      this.checkOnClass -= 1;
-      if (isOnList === '1') {
-        this.checkOnList -= 1;
-      } else {
-        this.checkNewCount -= 1;
-      }
-    }
-    this.wrapSumCount();
-  }
-
-  simulateLoading() {
-    const exBox = document.querySelector('.ex-box');
-    const loadingSpinner = document.querySelector('.loading-wrap--js');
-    const loadingMessage = document.getElementById('loadingMessage');
-
-    // 로딩 시작
-    exBox.style.display = 'block';
-    loadingSpinner.style.display = 'flex';
-    loadingMessage.textContent = '로딩 중이에요!';
-  }
-
-  stopLoading() {
-    const exBox = document.querySelector('.ex-box');
-
-    // 로딩 종료
-    exBox.style.display = 'none';
-  }
-
-  addNameEventListener() {
-    const nameDivs = document.querySelectorAll('.name');
-    // 이름클릭시 모달창이 뜨도록 합니다.
-    nameDivs.forEach((nameDiv) => {
-      nameDiv.addEventListener('click', async (event) => {
-        this.openStudentModal(event);
-      });
-    });
-
-    // 모달창 닫기
-    document
-      .querySelector('.FLOATING_DIV_MASK')
-      .addEventListener('click', () => {
-        this.closeStudentModal();
-      });
-    document
-      .getElementById('modal-close-button')
-      .addEventListener('click', () => {
-        this.closeStudentModal();
-      });
-
+  // 새친구 추가 버튼을 눌렀을 때 모달창을 띄우는 이벤트리스너를 설정합니다.
+  addSaveAndAddStudentEventListener() {
     //  저장버튼 누르면 학생정보 저장
     document
       .getElementById('saveStudent')
@@ -461,14 +435,150 @@ class Attendance {
           alert('저장에 실패했습니다.');
         }
       });
+    // 새친구 추가 버튼 누르면 학생정보 저장
+    document
+      .getElementById('makeStudent')
+      .addEventListener('click', async () => {
+        const name = document.getElementById('name').value;
+        const mobile2 = document.getElementById('mobile2').value;
+        const mobile3 = document.getElementById('mobile3').value;
+        const gender = document.getElementById('gender').value;
+        if (gender === '') {
+          alert('성별을 선택해주세요.');
+          return;
+        }
+        let phone = `010-${mobile2}-${mobile3}`;
+        if (!mobile2 || !mobile3) {
+          phone = '';
+        }
+        const birthday = document.getElementById('birthday').value;
+        const school = document.getElementById('school').value;
+        const comment = document.getElementById('comment').value;
+        const data = {
+          name,
+          gender,
+          phone,
+          birth: birthday,
+          school,
+          comment,
+          grade: this.grade,
+          class: this.classNum,
+        };
+        const response = await this.makeStudent(data);
+        if (response.success) {
+          alert('새친구가 추가되었어요!');
+          this.closeStudentModal();
+        } else {
+          alert('저장에 실패했습니다.');
+        }
+      });
   }
 
+  // 출석을 체크합니다.
+  async boardCheck(checkId, organizationId) {
+    if (checkId !== 'null') {
+      const data = await fetch(
+        `http://localhost:3000/board/checkAttendance/${checkId}`,
+        {
+          method: 'PATCH',
+        },
+      );
+      const response = await data.json();
+      return response;
+    } else {
+      const body = {
+        date: this.date,
+      };
+      const data = await fetch(
+        `http://localhost:3000/board/makeAttendance/${organizationId}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(body),
+        },
+      );
+      const response = await data.json();
+      return response;
+    }
+  }
+
+  // 출석을 체크할 때마다 카운트를 바꿉니다.
+  changeCount(data, isOnList) {
+    if (data === 1) {
+      this.checkOnClass += 1;
+      if (isOnList === '1') {
+        this.checkOnList += 1;
+      } else {
+        this.checkNewCount += 1;
+      }
+    } else {
+      this.checkOnClass -= 1;
+      if (isOnList === '1') {
+        this.checkOnList -= 1;
+      } else {
+        this.checkNewCount -= 1;
+      }
+    }
+    this.wrapSumCount();
+  }
+
+  // 로딩을 시뮬레이션합니다.
+  simulateLoading() {
+    const exBox = document.querySelector('.ex-box');
+    const loadingSpinner = document.querySelector('.loading-wrap--js');
+    const loadingMessage = document.getElementById('loadingMessage');
+
+    // 로딩 시작
+    exBox.style.display = 'block';
+    loadingSpinner.style.display = 'flex';
+    loadingMessage.textContent = '로딩 중이에요!';
+  }
+
+  // 로딩을 멈춥니다.
+  stopLoading() {
+    const exBox = document.querySelector('.ex-box');
+
+    // 로딩 종료
+    exBox.style.display = 'none';
+  }
+
+  // 학생의 이름을 클릭했을 때 모달창을 띄우는 이벤트리스너를 설정합니다.
+  addNameEventListener() {
+    const nameDivs = document.querySelectorAll('.name');
+    // 이름클릭시 모달창이 뜨도록 합니다.
+    nameDivs.forEach((nameDiv) => {
+      nameDiv.addEventListener('click', async (event) => {
+        this.openStudentModal(event);
+      });
+    });
+
+    // 모달창 닫기
+    document
+      .querySelector('.FLOATING_DIV_MASK')
+      .addEventListener('click', () => {
+        this.closeStudentModal();
+      });
+    document
+      .getElementById('modal-close-button')
+      .addEventListener('click', () => {
+        this.closeStudentModal();
+      });
+  }
+
+  // 학생의 정보를 모달창에 띄웁니다.
   async openStudentModal(event) {
     const userId = event.target.dataset.userid;
     // this.students에서 key 값이 userId인 value를 가져옵니다.
     const student = this.students[userId];
     if (student.name) {
       document.getElementById('name').value = student.name;
+    }
+    if (student.gender.data) {
+      document.getElementById('gender').value = parseInt(
+        student.gender.data[0],
+      );
     }
     if (student.phone) {
       document.getElementById('mobile2').value = student.phone.split('-')[1];
@@ -489,21 +599,45 @@ class Attendance {
       document.getElementById('regDate').value = `${year2}-${month2}-${day2}`;
     }
     if (student.school) {
-      console.log(school);
       document.getElementById('school').value = student.school;
     }
     const checkCount = await this.getStudentCheckCount(student.organizationId);
     document.getElementById('checkCount').innerText = checkCount;
     document.getElementById('studentDetails').style.display = 'block';
-    console.log(student);
     this.selectedStudent['id'] = student.userId;
     this.selectedStudent['organizationId'] = student.organizationId;
+    document.getElementById('saveStudent').style.display = 'block';
+    document.getElementById('regDateTr').style.display = 'table-row';
+    document.getElementById('regDateTr2').style.display = 'table-row';
+    document.getElementById('checkCountTr').style.display = 'table-row';
+    document.getElementById('checkCountTr2').style.display = 'table-row';
+    document.getElementById('makeStudent').style.display = 'none';
   }
 
+  // 새로운 학생을 추가하는 모달창을 띄웁니다.
+  async openAddStudentModal() {
+    document.getElementById('name').value = '';
+    document.getElementById('mobile2').value = '';
+    document.getElementById('mobile3').value = '';
+    document.getElementById('birthday').value = '';
+    document.getElementById('regDate').value = '';
+    document.getElementById('school').value = '';
+    document.getElementById('gender').value = '';
+    document.getElementById('regDateTr').style.display = 'none';
+    document.getElementById('regDateTr2').style.display = 'none';
+    document.getElementById('checkCountTr').style.display = 'none';
+    document.getElementById('checkCountTr2').style.display = 'none';
+    document.getElementById('saveStudent').style.display = 'none';
+    document.getElementById('makeStudent').style.display = 'table-row';
+    document.getElementById('studentDetails').style.display = 'block';
+  }
+
+  // 모달창을 닫습니다.
   closeStudentModal() {
     document.getElementById('studentDetails').style.display = 'none';
   }
 
+  // 학생의 출석 횟수를 가져옵니다.
   async getStudentCheckCount(organizationId) {
     const data = await fetch(
       `http://localhost:3000/student/checkCount/${organizationId}`,
@@ -512,6 +646,7 @@ class Attendance {
     return response.data[0]['COUNT(*)'];
   }
 
+  // 학생의 정보를 업데이트합니다.
   updateStudent(data) {
     return fetch(
       `http://localhost:3000/student/updateStudent/${this.selectedStudent.id}`,
@@ -523,5 +658,16 @@ class Attendance {
         body: JSON.stringify(data),
       },
     ).then((response) => response.json());
+  }
+
+  // 학생을 추가합니다.
+  makeStudent(data) {
+    return fetch('http://localhost:3000/student/makeStudent', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    }).then((response) => response.json());
   }
 }
