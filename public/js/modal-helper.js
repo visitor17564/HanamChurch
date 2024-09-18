@@ -109,6 +109,14 @@ export class ModalHelper {
       });
   }
 
+  setAddStudentModalEventListener() {
+    document
+      .querySelector('#makeStudentModalButton')
+      .addEventListener('click', () => {
+        this.openAddStudentModal();
+      });
+  }
+
   addFollowEventListener() {
     const addFollowButton = document.getElementById('addFollow');
     const editFollowButton = document.getElementById('editFollow');

@@ -130,6 +130,7 @@ class Attendance {
     this.wrapAddStudentButton();
     this.wrapBottomButton();
     this.setStudentEventListener();
+    this.modalHelper.setAddStudentModalEventListener();
     this.modalHelper.addNameEventListener();
     this.modalHelper.addSaveAndAddStudentEventListener();
     this.modalHelper.addFollowEventListener();
@@ -211,27 +212,22 @@ class Attendance {
   }
 
   // 새친구 추가 버튼을 만듭니다.
-  wrapAddStudentButton() {
+  async wrapAddStudentButton() {
     const attendanceDiv = document.querySelector('.wrapAttendance');
     const div = `
-    <div id="makeStudentModalButton" class="attendanceDiv">
-      <div class="name">🥳 새 친구 추가</div>
+    <div id="makeStudentModalButton" class="bottomDiv">
+      <div>🥳 새 친구 추가</div>
       <div>➕</div>
     </div>
     `;
     attendanceDiv.innerHTML += div;
-    document
-      .getElementById('makeStudentModalButton')
-      .addEventListener('click', () => {
-        this.modalHelper.openAddStudentModal();
-      });
   }
 
   // 홈버튼을 만듭니다.
   wrapBottomButton() {
     const attendanceDiv = document.querySelector('.wrapAttendance');
     const div = `
-    <div id="makeStudentModalButton" class="bottomDiv">
+    <div class="bottomDiv">
       <a class="goToHome" href="/">🏠 홈으로가기</a>
       <a class="goToHome" href="https://forms.gle/P6FSyJBXSMoMjjUx6">📝 목양관리</a>
     </div>

@@ -22,6 +22,246 @@ export class BoardService {
     }
   }
 
+  async getAllBoard(checkedDate: Date) {
+    const formattedDate = this.formatDate(checkedDate);
+    try {
+      const [rows] = await this.pool.execute(
+        `SELECT o.grade, o.class, o.is_on_list, bc.board_check, u.gender
+          FROM organization o
+          LEFT JOIN board_check bc ON bc.organizationId = o.id AND bc.date = ?
+          LEFT JOIN users u ON o.userId = u.id
+        `,
+        [formattedDate],
+      );
+      const response = {
+        totalCount: {
+          totalCount: 0,
+          onListCount: {
+            maleCount: 0,
+            femaleCount: 0,
+            totalCount: 0,
+          },
+          newListCount: {
+            maleCount: 0,
+            femaleCount: 0,
+            totalCount: 0,
+          },
+          1: {
+            1: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
+            2: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
+            3: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
+            4: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
+            5: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
+            6: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
+          },
+          2: {
+            1: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
+            2: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
+            3: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
+            4: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
+            5: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
+          },
+          3: {
+            1: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
+            2: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
+            3: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
+          },
+        },
+        checkedCount: {
+          totalCount: 0,
+          onListCount: {
+            maleCount: 0,
+            femaleCount: 0,
+            totalCount: 0,
+          },
+          newListCount: {
+            maleCount: 0,
+            femaleCount: 0,
+            totalCount: 0,
+          },
+          1: {
+            1: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
+            2: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
+            3: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
+            4: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
+            5: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
+            6: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
+          },
+          2: {
+            1: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
+            2: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
+            3: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
+            4: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
+            5: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
+          },
+          3: {
+            1: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
+            2: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
+            3: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
+          },
+        },
+      };
+      rows.forEach((row) => {
+        if (row.board_check[0] === 1) {
+          response['checkedCount']['totalCount'] += 1;
+          response['checkedCount'][row.grade][row.class]['totalCount'] += 1;
+          if (row.is_on_list[0] === 1) {
+            response['checkedCount'][row.grade][row.class]['onListCount'] += 1;
+            response['checkedCount']['onListCount']['totalCount'] += 1;
+            if (row.gender[0] === 1) {
+              response['checkedCount']['onListCount']['maleCount'] += 1;
+            } else {
+              response['checkedCount']['onListCount']['femaleCount'] += 1;
+            }
+          } else {
+            response['checkedCount'][row.grade][row.class]['newListCount'] += 1;
+            response['checkedCount']['newListCount']['totalCount'] += 1;
+            if (row.gender[0] === 1) {
+              response['checkedCount']['newListCount']['maleCount'] += 1;
+            } else {
+              response['checkedCount']['newListCount']['femaleCount'] += 1;
+            }
+          }
+        }
+        response['totalCount']['totalCount'] += 1;
+        response['totalCount'][row.grade][row.class]['totalCount'] += 1;
+        if (row.is_on_list[0] === 1) {
+          response['totalCount'][row.grade][row.class]['onListCount'] += 1;
+          response['totalCount']['onListCount']['totalCount'] += 1;
+          if (row.gender[0] === 1) {
+            response['totalCount']['onListCount']['maleCount'] += 1;
+          } else {
+            response['totalCount']['onListCount']['femaleCount'] += 1;
+          }
+        } else {
+          response['totalCount'][row.grade][row.class]['newListCount'] += 1;
+          response['totalCount']['newListCount']['totalCount'] += 1;
+          if (row.gender[0] === 1) {
+            response['totalCount']['newListCount']['maleCount'] += 1;
+          } else {
+            response['totalCount']['newListCount']['femaleCount'] += 1;
+          }
+        }
+      });
+      return response;
+    } catch (error) {
+      console.error('Error fetching all board:', error);
+      throw error;
+    }
+  }
+
   async getBoard(checkedDate: Date, gradeNumber: number, classNumber: number) {
     // 모든 학생 리스트 가져오기
     const classMembers = await this.getClassMembers(

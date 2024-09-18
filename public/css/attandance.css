@@ -160,6 +160,21 @@ body {
   padding-bottom: 3%;
 }
 
+.totalDiv {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5%;
+  margin-left: 5%;
+  margin-right: 5%;
+  padding-left: 5%;
+  padding-right: 5%;
+  border-radius: 40px;
+  background-color: #ebebeb;
+  border: none;
+  padding-top: 3%;
+  padding-bottom: 3%;
+}
+
 .bottomDiv {
   display: flex;
   justify-content: space-between;
@@ -179,6 +194,15 @@ body {
   font-weight: bold;
   margin-top: auto;
   margin-bottom: auto;
+}
+
+.attendanceDiv a {
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-top: auto;
+  margin-bottom: auto;
+  text-decoration: none; /* 기본 밑줄 제거 */
+  color: inherit; /* 기본 색상 제거 */
 }
 
 .loading-wrap {
@@ -376,4 +400,9 @@ body {
   font-weight: bold;
   height: 100%;
   width: 70%;
+}
+
+.goToHome {
+  text-decoration: none; /* 기본 밑줄 제거 */
+  color: inherit; /* 기본 색상 제거 */
 }

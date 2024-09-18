@@ -6,6 +6,16 @@ import { ResponseDto } from 'src/ResponseDTO/response-dto';
 export class BoardController {
   constructor(private readonly boardService: BoardService) {}
 
+  // 전체조회
+  @Get('/viewAllBoard/:date')
+  async getAllBoard(@Param('date') date: string) {
+    const checkDate = new Date(date);
+    const data = await this.boardService.getAllBoard(checkDate);
+
+    const response = new ResponseDto(true, '전체출석부 조회 완료!', data);
+    return response;
+  }
+
   // 상품 상세 조회 (content도 가져오기)
   @Get('/viewBoard/:date/:grade/:class')
   async getBoard(

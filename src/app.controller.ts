@@ -20,4 +20,10 @@ export class AppController {
   async goToAttendance() {
     return;
   }
+
+  @Get('check-all-board')
+  @Render('check-all-board')
+  async goToCheckAllBoard() {
+    return;
+  }
 }
