@@ -438,6 +438,13 @@ export class BoardService {
           VALUES (?, ?, 1, ?)`,
         [organizationId, date, checkerId],
       );
+
+      const checkCount = await this.checkCount(organizationId);
+
+      if (checkCount === 5) {
+        await this.updateIsOnList(organizationId, 1);
+      }
+
       return row.insertId;
     } catch (error) {
       console.error('Error fetching board:', error);
@@ -455,7 +462,7 @@ export class BoardService {
   async checkAttendance(checkId: number) {
     try {
       const [rows] = await this.pool.execute(
-        `SELECT board_check
+        `SELECT board_check, organizationId
          FROM board_check
          WHERE id = ?`,
         [checkId],
@@ -471,11 +478,42 @@ export class BoardService {
            WHERE id = ?`,
           [result, checkId],
         );
+
+        const organizationId = rows[0].organizationId;
+        const checkCount = await this.checkCount(organizationId);
+
+        if (checkCount === 5) {
+          await this.updateIsOnList(organizationId, 1);
+        } else if (checkCount === 4 && result === 0) {
+          await this.updateIsOnList(organizationId, 0);
+        }
+
         return result;
       }
     } catch (error) {
       console.error('Error checking attendance:', error);
       throw error;
     }
+  }
+
+  async checkCount(organizationId: number) {
+    // organizationId의 2024년 전체 출석 합계를 조회합니다.
+    const [rows] = await this.pool.execute(
+      `SELECT COUNT(*)
+        FROM board_check
+        WHERE organizationId = ? AND board_check = 1`,
+      [organizationId],
+    );
+
+    return rows[0]['COUNT(*)'];
+  }
+
+  async updateIsOnList(organizationId: number, state: number) {
+    await this.pool.execute(
+      `UPDATE organization
+       SET is_on_list = ?
+       WHERE id = ?`,
+      [state, organizationId],
+    );
   }
 }
