@@ -141,12 +141,19 @@ export class StudentService {
     const connection = await this.pool.getConnection();
     await connection.beginTransaction();
     try {
-      const birth = new Date(body.birth);
+      let birth = null;
+      if (body.birth) {
+        birth = new Date(body.birth);
+      }
+      let phone = null;
+      if (body.phone) {
+        phone = body.phone;
+      }
       // user테이블에 학생정보를 추가하고 id를 반환합니다.
       const [rows] = await connection.execute(
         `INSERT INTO users (name, gender, phone, birth, created_at)
          VALUES (?, ?, ?, ?, ?)`,
-        [body.name, parseInt(body.gender), body.phone, birth, new Date()],
+        [body.name, parseInt(body.gender), phone, birth, new Date()],
       );
 
       // 올해연도를 year에 숫자로 반환합니다.
@@ -156,8 +163,6 @@ export class StudentService {
       if (body.follow) {
         follow = body.follow;
       }
-
-      console.log(body.grade);
 
       const [rows2] = await connection.execute(
         `INSERT INTO organization (userId, year, department, grade, class, role, school, is_new, follow)
