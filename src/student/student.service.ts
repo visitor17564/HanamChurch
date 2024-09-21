@@ -157,6 +157,8 @@ export class StudentService {
         follow = body.follow;
       }
 
+      console.log(body.grade);
+
       const [rows2] = await connection.execute(
         `INSERT INTO organization (userId, year, department, grade, class, role, school, is_new, follow)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,

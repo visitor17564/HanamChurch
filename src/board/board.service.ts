@@ -440,8 +440,9 @@ export class BoardService {
       );
 
       const checkCount = await this.checkCount(organizationId);
+      const isNew = await this.checkIsNew(organizationId);
 
-      if (checkCount === 5) {
+      if (checkCount === 5 && isNew === 1) {
         await this.updateIsOnList(organizationId, 1);
       }
 
@@ -481,10 +482,10 @@ export class BoardService {
 
         const organizationId = rows[0].organizationId;
         const checkCount = await this.checkCount(organizationId);
-
-        if (checkCount === 5) {
+        const isNew = await this.checkIsNew(organizationId);
+        if (checkCount === 5 && isNew === 1) {
           await this.updateIsOnList(organizationId, 1);
-        } else if (checkCount === 4 && result === 0) {
+        } else if (checkCount === 4 && isNew === 1 && result === 0) {
           await this.updateIsOnList(organizationId, 0);
         }
 
@@ -515,5 +516,15 @@ export class BoardService {
        WHERE id = ?`,
       [state, organizationId],
     );
+  }
+
+  async checkIsNew(organizationId: number) {
+    const [rows] = await this.pool.execute(
+      `SELECT is_new
+       FROM organization
+       WHERE id = ?`,
+      [organizationId],
+    );
+    return rows[0].is_new[0];
   }
 }

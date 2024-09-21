@@ -73,13 +73,13 @@ export class ModalHelper {
           school,
           comment,
           follow,
-          grade: this.grade,
-          class: this.classNum,
+          grade: this.attandace.grade,
+          class: this.attandace.classNum,
         };
         const response = await this.makeStudent(data);
         if (response.success) {
           alert('새친구가 추가되었어요!');
-          this.closeStudentModal();
+          location.reload();
         } else {
           alert('저장에 실패했습니다.');
         }
