@@ -1,4 +1,4 @@
-@domain = http://localhost:3000
+@domain = http://hanam-church-a3ghgaavagc9gxe7.koreacentral-01.azurewebsites.net
 
 ###
 # DB조회
