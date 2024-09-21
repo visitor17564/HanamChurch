@@ -85,7 +85,6 @@ export class StudentService {
         [body.school, follow, body.organizationId],
       );
 
-      console.log(body.comment);
       if (body.comment) {
         // 기존 data를 확인합니다.
         const [rows] = await connection.execute(

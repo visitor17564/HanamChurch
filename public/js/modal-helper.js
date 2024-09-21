@@ -145,7 +145,7 @@ export class ModalHelper {
       .addEventListener('click', async () => {
         const searchName = document.getElementById('findFollowName').value;
         const data = await fetch(
-          `https://hanam-church-a3ghgaavagc9gxe7.koreacentral-01.azurewebsites.net/student/findStudentByName/${searchName}`,
+          `/student/findStudentByName/${searchName}`,
         );
         const response = await data.json();
         this.wrapFollowList(response);
@@ -215,9 +215,7 @@ export class ModalHelper {
 
     if (student.is_new.data[0] === 1) {
       if (student.follow) {
-        const data = await fetch(
-          `https://hanam-church-a3ghgaavagc9gxe7.koreacentral-01.azurewebsites.net/student/findStudentById/${student.follow}`,
-        );
+        const data = await fetch(`/student/findStudentById/${student.follow}`);
         const response = await data.json();
         const followId = response[0].id;
         const InnerText = `${response[0].grade}학년 ${response[0].class}반 ${response[0].name}`;
@@ -290,30 +288,25 @@ export class ModalHelper {
 
   // 학생의 출석 횟수를 가져옵니다.
   async getStudentCheckCount(organizationId) {
-    const data = await fetch(
-      `https://hanam-church-a3ghgaavagc9gxe7.koreacentral-01.azurewebsites.net/student/checkCount/${organizationId}`,
-    );
+    const data = await fetch(`/student/checkCount/${organizationId}`);
     const response = await data.json();
     return response.data[0]['COUNT(*)'];
   }
 
   // 학생의 정보를 업데이트합니다.
   updateStudent(data) {
-    return fetch(
-      `https://hanam-church-a3ghgaavagc9gxe7.koreacentral-01.azurewebsites.net/student/updateStudent/${this.selectedStudent.id}`,
-      {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
+    return fetch(`/student/updateStudent/${this.selectedStudent.id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
       },
-    ).then((response) => response.json());
+      body: JSON.stringify(data),
+    }).then((response) => response.json());
   }
 
   // 학생을 추가합니다.
   makeStudent(data) {
-    return fetch('https://hanam-church-a3ghgaavagc9gxe7.koreacentral-01.azurewebsites.net/student/makeStudent', {
+    return fetch('/student/makeStudent', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

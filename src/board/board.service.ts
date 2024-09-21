@@ -214,7 +214,7 @@ export class BoardService {
         },
       };
       rows.forEach((row) => {
-        if (row.board_check[0] === 1) {
+        if (row.board_check !== null && row.board_check[0] === 1) {
           response['checkedCount']['totalCount'] += 1;
           response['checkedCount'][row.grade][row.class]['totalCount'] += 1;
           if (row.is_on_list[0] === 1) {

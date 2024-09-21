@@ -120,7 +120,7 @@ class Attendance {
   // 학년, 반, 날짜에 따른 출석부를 가져옵니다.
   async getBoard(grade, classNum, date) {
     const data = await fetch(
-      `https://hanam-church-a3ghgaavagc9gxe7.koreacentral-01.azurewebsites.net/board/viewBoard/${date}/${parseInt(grade)}/${parseInt(classNum)}`,
+      `/board/viewBoard/${date}/${parseInt(grade)}/${parseInt(classNum)}`,
     );
     const response = await data.json();
     for (let i = 0; i < response.data.length; i++) {
@@ -276,28 +276,22 @@ class Attendance {
   // 출석을 체크합니다.
   async boardCheck(checkId, organizationId) {
     if (checkId !== 'null') {
-      const data = await fetch(
-        `https://hanam-church-a3ghgaavagc9gxe7.koreacentral-01.azurewebsites.net/board/checkAttendance/${checkId}`,
-        {
-          method: 'PATCH',
-        },
-      );
+      const data = await fetch(`/board/checkAttendance/${checkId}`, {
+        method: 'PATCH',
+      });
       const response = await data.json();
       return response;
     } else {
       const body = {
         date: this.dateHelper.date,
       };
-      const data = await fetch(
-        `https://hanam-church-a3ghgaavagc9gxe7.koreacentral-01.azurewebsites.net/board/makeAttendance/${organizationId}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(body),
+      const data = await fetch(`/board/makeAttendance/${organizationId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-      );
+        body: JSON.stringify(body),
+      });
       const response = await data.json();
       return response;
     }
