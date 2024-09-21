@@ -1,0 +1,8 @@
+{
+  "appService.zipIgnorePattern": [
+    "node_modules{,/**}",
+    ".vscode{,/**}"
+  ],
+  "appService.defaultWebAppToDeploy": "/subscriptions/50446d37-0850-426e-8b3c-ddf589c3875a/resourceGroups/visitor/providers/Microsoft.Web/sites/hanam-church",
+  "appService.deploySubpath": "."
+}
