@@ -29,7 +29,7 @@ class CheckAllBoard {
   // 학년, 반, 날짜에 따른 출석부를 가져옵니다.
   async getBoard(date) {
     const data = await fetch(
-      `http://hanam-church-a3ghgaavagc9gxe7.koreacentral-01.azurewebsites.net/board/viewAllBoard/${date}`,
+      `https://hanam-church-a3ghgaavagc9gxe7.koreacentral-01.azurewebsites.net/board/viewAllBoard/${date}`,
     );
     const response = await data.json();
     await this.wrapBoard(response.data);
