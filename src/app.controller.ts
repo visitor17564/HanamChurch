@@ -26,4 +26,10 @@ export class AppController {
   async goToCheckAllBoard() {
     return;
   }
+
+  @Get('check-all-year-board')
+  @Render('check-all-year-board')
+  async goToCheckAllYearBoard() {
+    return;
+  }
 }

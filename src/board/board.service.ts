@@ -22,6 +22,47 @@ export class BoardService {
     }
   }
 
+  async getAllYearBoard(department: string, year: number) {
+    try {
+      const [rows] = await this.pool.execute(
+        `
+        select bc.id, bc.date, bc.board_check, o.grade, o.class, u.name from board_check bc 
+          left join organization o 
+            on o.id = bc.organizationId
+          left join users u
+            on u.id = o.userId
+          where o.year = ?
+          and o.department = ?
+        `,
+        [year, department],
+      );
+      const response = {};
+      rows.forEach((row) => {
+        const date = this.formatDate(row.date);
+        if (response[row.grade] === undefined) {
+          response[row.grade] = {};
+        }
+        if (response[row.grade][row.class] === undefined) {
+          response[row.grade][row.class] = {};
+        }
+        if (response[row.grade][row.class][row.name] === undefined) {
+          response[row.grade][row.class][row.name] = {};
+        }
+        if (response[row.grade][row.class][row.name][date] === undefined) {
+          response[row.grade][row.class][row.name][date] = {};
+        }
+        response[row.grade][row.class][row.name][date] = {
+          id: row.id,
+          check: row.board_check,
+        };
+      });
+      return response;
+    } catch (error) {
+      console.error('Error fetching all board:', error);
+      throw error;
+    }
+  }
+
   async getAllBoard(checkedDate: Date) {
     const formattedDate = this.formatDate(checkedDate);
     try {

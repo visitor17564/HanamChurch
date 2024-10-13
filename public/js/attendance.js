@@ -64,7 +64,7 @@ class Attendance {
             teacherName = '한미연';
             break;
           case 4:
-            teacherName = '박창용';
+            teacherName = '진승범';
             break;
           case 5:
             teacherName = '소양신';
@@ -85,7 +85,7 @@ class Attendance {
             teacherName = '최재혁';
             break;
           case 3:
-            teacherName = '조성욱, 최익도';
+            teacherName = '조성욱';
             break;
           case 4:
             teacherName = '함석주';

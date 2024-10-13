@@ -1,0 +1,53 @@
+body,
+.tui-grid-container {
+  font-family: 'Noto Sans KR', sans-serif !important;
+}
+.allYearBoard {
+  width: auto;
+  overflow-x: auto;
+}
+
+.allYearBoard {
+  border: 1px solid gray !important;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.allYearBoard thead tr th,
+.allYearBoard tbody tr th,
+.allYearBoard tbody tr td {
+  width: 150px;
+  height: 25px;
+  text-align: center;
+  vertical-align: middle;
+  border: 1px solid gray !important;
+  margin: 10% auto 10% auto;
+}
+
+.allYearBoard tbody tr td input {
+  margin: 10% auto 10% auto;
+}
+
+.allYearBoard-gradeClass {
+  width: 5% !important;
+}
+
+.youtubeLogo {
+  height: 25px;
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 5%;
+  display: flex;
+  margin-top: 5%;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  background-color: #59c1d5;
+  color: white;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+}
