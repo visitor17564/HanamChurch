@@ -38,6 +38,9 @@ export class DateHelper {
       } else {
         sundayString = todayString;
       }
+    } else if (todayString >= '2024-12-22' && todayString <= '2024-12-25') {
+      // 만약 오늘이 12.22~12.25 사이라면 12.25를 가져옵니다.
+      sundayString = '2024-12-25';
     } else {
       sundayString = date;
     }
