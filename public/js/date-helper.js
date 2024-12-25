@@ -8,8 +8,8 @@ export class DateHelper {
     // 오늘이 일요일이 아니면 가장 직전의 일요일을 가져옵니다.
     let sundayString = '';
     if (!date) {
+      // 기본 변수 선언
       const today = new Date();
-      // 오늘이 일요일이 아니면 가장 직전의 일요일을 가져옵니다.
       const todayDay = today.getDay();
       const todayString = today
         .toLocaleDateString('ko-KR', {
@@ -21,7 +21,12 @@ export class DateHelper {
         .split('. ')
         .map((part) => part.replace('.', '').padStart(2, '0'))
         .join('-');
-      if (todayDay !== 0) {
+      // 오늘이 일요일이아니거나 12월 25일이 아니면 가장 직전의 일요일을 가져옵니다.
+      if (
+        todayDay !== 0 &&
+        todayString.split('-')[1] !== '12' &&
+        todayString.split('-')[2] !== '25'
+      ) {
         const sunday = new Date(
           today.setDate(today.getDate() - todayDay),
         ).toLocaleDateString('ko-KR', {
@@ -35,9 +40,6 @@ export class DateHelper {
           .split('. ')
           .map((part) => part.replace('.', '').padStart(2, '0'));
         sundayString = `${year}-${month}-${day}`;
-      } else if (todayString >= '2024-12-22' && todayString <= '2024-12-25') {
-        // 만약 오늘이 12.22~12.25 사이라면 12.25를 가져옵니다.
-        sundayString = '2024-12-25';
       } else {
         sundayString = todayString;
       }
@@ -63,15 +65,54 @@ export class DateHelper {
   async goToBeforeWeek() {
     // this.date를 date객체로 바꾸고 thisDate로 선언합니다.
     const thisDate = new Date(this.date);
-    // thisDate를 7일 뒤로 바꿉니다.
-    const beforeWeek = new Date(
-      thisDate.setDate(thisDate.getDate() - 7),
-    ).toISOString();
-    const beforeWeekString = beforeWeek.split('T')[0];
-    this.date = beforeWeekString;
-    this.wrapDate(beforeWeekString);
-    this.attendance.makeAttendance();
-    this.setMoveDateEventlistener();
+    // thisDate를 7일 전으로 바꿉니다.
+    // this.date가 12월 25일이 아니라면 7일 전으로 바꿉니다.
+    if (this.date.split('-')[1] !== '12' && this.date.split('-')[2] !== '25') {
+      const beforeWeek = new Date(
+        thisDate.setDate(thisDate.getDate() - 7),
+      ).toISOString();
+      const beforeWeekString = beforeWeek.split('T')[0];
+      this.date = beforeWeekString;
+      this.wrapDate(beforeWeekString);
+      this.attendance.makeAttendance();
+      this.setMoveDateEventlistener();
+      return;
+    } else {
+      // this.date가 일요일인지 확인합니다.
+      const todayDay = thisDate.getDay();
+      // this.date가 일요일이라면 7일 전으로 바꿉니다.
+      if (todayDay === 0) {
+        const beforeWeek = new Date(
+          thisDate.setDate(thisDate.getDate() - 7),
+        ).toISOString();
+        const beforeWeekString = beforeWeek.split('T')[0];
+        this.date = beforeWeekString;
+        this.wrapDate(beforeWeekString);
+        this.attendance.makeAttendance();
+        this.setMoveDateEventlistener();
+        return;
+      } else {
+        // 아닐경우 가장 가까운 과거의 일요일로 바꿉니다.
+        const yearSundayArray = this.makeYearSundayArray();
+        const todayString = thisDate
+          .toLocaleDateString('ko-KR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            timeZone: 'Asia/Seoul',
+          })
+          .split('. ')
+          .map((part) => part.replace('.', '').padStart(2, '0'))
+          .join('-');
+        const todayIndex = yearSundayArray.indexOf(todayString);
+        const beforeWeek = yearSundayArray[todayIndex - 1];
+        this.date = beforeWeek;
+        this.wrapDate(beforeWeek);
+        this.attendance.makeAttendance();
+        this.setMoveDateEventlistener();
+        return;
+      }
+    }
   }
 
   // 다음주로 이동합니다.
