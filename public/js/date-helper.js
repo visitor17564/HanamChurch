@@ -35,12 +35,12 @@ export class DateHelper {
           .split('. ')
           .map((part) => part.replace('.', '').padStart(2, '0'));
         sundayString = `${year}-${month}-${day}`;
+      } else if (todayString >= '2024-12-22' && todayString <= '2024-12-25') {
+        // 만약 오늘이 12.22~12.25 사이라면 12.25를 가져옵니다.
+        sundayString = '2024-12-25';
       } else {
         sundayString = todayString;
       }
-    } else if (todayString >= '2024-12-22' && todayString <= '2024-12-25') {
-      // 만약 오늘이 12.22~12.25 사이라면 12.25를 가져옵니다.
-      sundayString = '2024-12-25';
     } else {
       sundayString = date;
     }
