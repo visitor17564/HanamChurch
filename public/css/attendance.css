@@ -1,5 +1,6 @@
 body {
   font-family: 'Noto Sans KR', sans-serif;
+  font-weight: 600;
 }
 
 .topContent {
@@ -280,10 +281,12 @@ body {
 .FLOATING_DIV_BLOCK,
 .FLOATING_DIV_BLOCK_FOLLOW {
   position: fixed;
-  top: 10%;
+  top: 5%;
   width: 100%;
   padding: 0;
   margin: 0 auto;
+  max-height: 90%;
+  overflow-y: auto;
 }
 
 .FLOATING_CONTENT,
@@ -317,11 +320,15 @@ body {
     width: 96%;
     padding: 0 2%;
     margin: 0 auto;
+    max-height: 90%;
+    overflow-y: auto;
   }
 }
 
 .addModal {
   padding: 20px;
+  height: 80%;
+  overflow-y: auto;
 }
 
 .followModal {

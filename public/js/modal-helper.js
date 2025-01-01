@@ -1,6 +1,6 @@
 export class ModalHelper {
   constructor(item) {
-    this.attandace = item;
+    this.attandance = item;
     this.students = {};
     this.selectedStudent = {};
     this.selectedFollow = {};
@@ -73,8 +73,8 @@ export class ModalHelper {
           school,
           comment,
           follow,
-          grade: this.attandace.grade,
-          class: this.attandace.classNum,
+          grade: this.attandance.grade,
+          class: this.attandance.classNum,
         };
         const response = await this.makeStudent(data);
         if (response.success) {
@@ -107,6 +107,9 @@ export class ModalHelper {
       .addEventListener('click', () => {
         this.closeStudentModal();
       });
+    document.getElementById('closeStudent').addEventListener('click', () => {
+      this.closeStudentModal();
+    });
   }
 
   setAddStudentModalEventListener() {
@@ -144,9 +147,7 @@ export class ModalHelper {
       .getElementById('searchFollow')
       .addEventListener('click', async () => {
         const searchName = document.getElementById('findFollowName').value;
-        const data = await fetch(
-          `/student/findStudentByName/${searchName}`,
-        );
+        const data = await fetch(`/student/findStudentByName/${searchName}`);
         const response = await data.json();
         this.wrapFollowList(response);
       });
@@ -179,18 +180,27 @@ export class ModalHelper {
     const userId = event.target.dataset.userid;
     // this.students에서 key 값이 userId인 value를 가져옵니다.
     const student = this.students[userId];
+    // 이름 초기화 후 입히기
+    document.getElementById('name').value = '';
     if (student.name) {
       document.getElementById('name').value = student.name;
     }
+    // 성별 초기화 후 입히기
+    document.getElementById('gender').value = '';
     if (student.gender.data) {
       document.getElementById('gender').value = parseInt(
         student.gender.data[0],
       );
     }
+    // 전화번호 초기화 후 입히기
+    document.getElementById('mobile2').value = '';
+    document.getElementById('mobile3').value = '';
     if (student.phone) {
       document.getElementById('mobile2').value = student.phone.split('-')[1];
       document.getElementById('mobile3').value = student.phone.split('-')[2];
     }
+    // 생일 초기화 후 입히기
+    document.getElementById('birthday').value = '';
     if (student.birth) {
       const birthDate = new Date(student.birth);
       const year = birthDate.getFullYear();
@@ -198,6 +208,8 @@ export class ModalHelper {
       const day = String(birthDate.getDate()).padStart(2, '0');
       document.getElementById('birthday').value = `${year}-${month}-${day}`;
     }
+    // 등록일 초기화 후 입히기
+    document.getElementById('regDate').value = '';
     if (student.created_at) {
       const regDate = new Date(student.created_at);
       const year2 = regDate.getFullYear();
@@ -205,12 +217,17 @@ export class ModalHelper {
       const day2 = String(regDate.getDate()).padStart(2, '0');
       document.getElementById('regDate').value = `${year2}-${month2}-${day2}`;
     }
+    // 학교 초기화 후 입히기
+    document.getElementById('school').value = '';
     if (student.school) {
       document.getElementById('school').value = student.school;
     }
-    console.log(student);
+    // 코멘트 초기화 후 입히기
+    document.getElementById('comment').value = '';
     if (student.comment) {
-      document.getElementById('comment').value = student.comment;
+      document.getElementById('comment').value = student.comment
+        ? student.comment
+        : '';
     }
 
     if (student.is_new.data[0] === 1) {
@@ -236,6 +253,29 @@ export class ModalHelper {
       document.getElementById('followTr2').style.display = 'none';
     }
     const checkCount = await this.getStudentCheckCount(student.organizationId);
+    const thisYear = this.attandance.dateHelper.date.split('-')[0];
+    const beforeComment = await this.getStudentBeforeComment(
+      student.id,
+      thisYear,
+    );
+    if (beforeComment.length > 0) {
+      // pastComments 초기화
+      document.getElementById('pastComments').innerHTML = '';
+      // 과거 코멘트가 있을경우 순회하며 pastComments에 추가합니다.
+      beforeComment.forEach((comment) => {
+        let pastComments = `
+          <span>${comment.year}년 ${comment.grade}학년 ${comment.class}반</span>
+          <br><br>
+          <textarea readonly class="pastComment">${comment.comment}</textarea>
+        `;
+        document.getElementById('pastComments').innerHTML += pastComments;
+      });
+      document.getElementById('pastCommentsTitle').style.display = 'table-row';
+      document.getElementById('pastComments').style.display = 'table-row';
+    } else {
+      document.getElementById('pastCommentsTitle').style.display = 'none';
+      document.getElementById('pastComments').style.display = 'none';
+    }
     document.getElementById('checkCount').innerText = checkCount;
     document.getElementById('studentDetails').style.display = 'block';
     this.selectedStudent['id'] = student.id;
@@ -350,5 +390,12 @@ export class ModalHelper {
         document.getElementById('chooseFollow').style.display = 'block';
       });
     });
+  }
+
+  // 학생들의 과거 코멘트를 가져옵니다.
+  getStudentBeforeComment(studentId, year) {
+    return fetch(`/student/beforeComment/${year}/${studentId}`).then(
+      (response) => response.json(),
+    );
   }
 }

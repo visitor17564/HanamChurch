@@ -55,22 +55,22 @@ class Attendance {
       case 1:
         switch (classNum) {
           case 1:
-            teacherName = '문민욱';
+            teacherName = '박인영';
             break;
           case 2:
-            teacherName = '허은성';
+            teacherName = '이은진';
             break;
           case 3:
-            teacherName = '한미연';
+            teacherName = '최현미';
             break;
           case 4:
-            teacherName = '진승범';
+            teacherName = '홍사성';
             break;
           case 5:
-            teacherName = '소양신';
+            teacherName = '허은성';
             break;
           case 6:
-            teacherName = '김두환';
+            teacherName = '함석주';
             break;
           default:
             console.log('반 정보가 잘못되었습니다.');
@@ -79,19 +79,16 @@ class Attendance {
       case 2:
         switch (classNum) {
           case 1:
-            teacherName = '박인영';
+            teacherName = '문민욱';
             break;
           case 2:
-            teacherName = '최재혁';
+            teacherName = '한미연';
             break;
           case 3:
-            teacherName = '조성욱';
+            teacherName = '소양신';
             break;
           case 4:
-            teacherName = '함석주';
-            break;
-          case 5:
-            teacherName = '임신배';
+            teacherName = '김두환';
             break;
           default:
             console.log('반 정보가 잘못되었습니다.');
@@ -100,13 +97,16 @@ class Attendance {
       case 3:
         switch (classNum) {
           case 1:
-            teacherName = '최현미';
+            teacherName = '소담희';
             break;
           case 2:
-            teacherName = '윤지성';
+            teacherName = '최재혁';
             break;
           case 3:
-            teacherName = '홍사성';
+            teacherName = '윤지성';
+            break;
+          case 4:
+            teacherName = '임신배';
             break;
           default:
             console.log('반 정보가 잘못되었습니다.');

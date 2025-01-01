@@ -317,6 +317,7 @@ export class BoardService {
 
   async getClassMembers(gradeNum: number, classNum: number, checkedDate: Date) {
     const formattedDate = this.formatDate(checkedDate);
+    const year = checkedDate.getFullYear();
     try {
       const [rows] = await this.pool.execute(
         `SELECT u.id, u.name, u.gender, u.phone, u.birth, u.created_at, 
@@ -327,8 +328,9 @@ export class BoardService {
          LEFT JOIN users u ON o.userId = u.id
          LEFT JOIN board_check bc ON bc.organizationId = o.id AND bc.date = ?
          LEFT JOIN comments c ON c.organizationId = o.id
-         WHERE o.grade = ? AND o.class = ?`,
-        [formattedDate, gradeNum, classNum],
+         WHERE o.grade = ? AND o.class = ?
+         and o.year = ?`,
+        [formattedDate, gradeNum, classNum, year],
       );
       const response = rows;
       return response;
@@ -374,7 +376,7 @@ export class BoardService {
         try {
           const [result] = await this.pool.execute(
             'INSERT INTO organization (userId, grade, class, year, department, role, is_on_list) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [userId, grade, classNum, 2024, '고등부', 0, isOnList],
+            [userId, grade, classNum, 2025, '고등부', 0, isOnList],
           );
         } catch (error) {
           console.error('Error inserting user:', error);

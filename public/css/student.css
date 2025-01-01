@@ -23,6 +23,14 @@
 
 #comment {
   width: 100%;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-weight: 300;
+}
+
+.pastComment {
+  width: 100%;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-weight: 300;
 }
 
 .saveStudent {
@@ -30,6 +38,7 @@
   text-align: center;
   display: flex;
   justify-content: center;
+  gap: 10px;
 }
 
 .saveStudentButton {

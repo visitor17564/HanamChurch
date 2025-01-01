@@ -233,4 +233,22 @@ export class StudentService {
       throw error;
     }
   }
+
+  async getBeforeComment(studentId, year) {
+    try {
+      const [rows] = await this.pool.execute(
+        `SELECT c.comment, o.grade, o.class, o.year
+         FROM users u
+         left JOIN organization o ON o.userId = u.id
+         left JOIN comments c ON c.organizationId = o.id
+         WHERE u.id = ? and o.year < ?`,
+        [studentId, year],
+      );
+      const response = rows;
+      return response;
+    } catch (error) {
+      console.error('Error fetching class members:', error);
+      throw error;
+    }
+  }
 }

@@ -40,4 +40,12 @@ export class StudentController {
     }
     return await this.studentService.createStudent(req.body);
   }
+
+  @Get('/beforeComment/:year/:studentId')
+  async getBeforeComment(
+    @Param('year') year: number,
+    @Param('studentId') studentId: number,
+  ) {
+    return await this.studentService.getBeforeComment(studentId, year);
+  }
 }
