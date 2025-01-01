@@ -140,11 +140,11 @@ export class DateHelper {
     }
     // 만약 day가 오늘보다 미래라면 오늘로 바꿉니다.
     const today = new Date().toISOString();
-    if (event.target.value > today) {
-      alert('오늘 이후로는 선택할 수 없어요!');
-      dateDiv.value = this.date;
-      return;
-    }
+    // if (event.target.value > today) {
+    //   alert('오늘 이후로는 선택할 수 없어요!');
+    //   dateDiv.value = this.date;
+    //   return;
+    // }
 
     this.date = dateDiv.value;
     this.wrapDate(this.date);
@@ -195,6 +195,33 @@ export class DateHelper {
     // 올해를 기준으로 1월 첫번째 일요일부터 12월 마지막 일요일까지의 모든 일요일 날짜를 배열로 만듭니다.
     const today = new Date();
     const year = today.getFullYear();
+    const yearDateArray = [];
+    for (let month = 0; month < 12; month++) {
+      const lastDay = new Date(year, month + 1, 0);
+      for (let day = 1; day <= lastDay.getDate(); day++) {
+        const date = new Date(year, month, day);
+        // date를 'yyyy-mm-dd' string으로 바꿉니다.
+        const formattedDate = date
+          .toLocaleDateString('ko-KR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            timeZone: 'Asia/Seoul',
+          })
+          .split('. ')
+          .map((part) => part.replace('.', '').padStart(2, '0'))
+          .join('-');
+        const dayOfWeek = date.getDay();
+        if (dayOfWeek === 0 || formattedDate === '2024-12-25') {
+          yearDateArray.push(formattedDate);
+        }
+      }
+    }
+    return yearDateArray;
+  }
+
+  makeYearSundayArrayForAllYearBoards(year) {
+    // 올해를 기준으로 1월 첫번째 일요일부터 12월 마지막 일요일까지의 모든 일요일 날짜를 배열로 만듭니다.
     const yearDateArray = [];
     for (let month = 0; month < 12; month++) {
       const lastDay = new Date(year, month + 1, 0);

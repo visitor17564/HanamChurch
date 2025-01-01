@@ -65,14 +65,16 @@ export class BoardService {
 
   async getAllBoard(checkedDate: Date) {
     const formattedDate = this.formatDate(checkedDate);
+    const year = checkedDate.getFullYear();
     try {
       const [rows] = await this.pool.execute(
         `SELECT o.grade, o.class, o.is_on_list, bc.board_check, u.gender
           FROM organization o
           LEFT JOIN board_check bc ON bc.organizationId = o.id AND bc.date = ?
           LEFT JOIN users u ON o.userId = u.id
+          WHERE o.year = ? AND o.department = '고등부'
         `,
-        [formattedDate],
+        [formattedDate, year],
       );
       const response = {
         totalCount: {
@@ -162,6 +164,11 @@ export class BoardService {
               onListCount: 0,
               newListCount: 0,
             },
+            4: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
           },
         },
         checkedCount: {
@@ -247,6 +254,11 @@ export class BoardService {
               newListCount: 0,
             },
             3: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
+            4: {
               totalCount: 0,
               onListCount: 0,
               newListCount: 0,

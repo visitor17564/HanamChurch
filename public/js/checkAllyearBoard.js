@@ -2,11 +2,21 @@ import { DateHelper } from './date-helper.js';
 
 // 다큐먼트가 로드될 때가지 기다립니다.
 document.addEventListener('DOMContentLoaded', async () => {
+  // url query에서 year값을 가져옵니다.
+  const year = new URLSearchParams(window.location.search).get('year');
   var Grid = tui.Grid;
   const dateHelper = new DateHelper();
-  const yearSundayArray = dateHelper.makeYearSundayArray();
+  const yearSundayArray = dateHelper.makeYearSundayArrayForAllYearBoards(year);
   const checkAllYearBoard = new CheckAllYearBoard(yearSundayArray, Grid);
-  await checkAllYearBoard.makeAttendance();
+  await checkAllYearBoard.makeAttendance(year);
+  // yearSelect가 change되면 url로 이동합니다.
+  const yearSelect = document.querySelector('.yearSelect');
+  // yearSelect의 값을 year로 설정합니다.
+  yearSelect.value = year;
+  yearSelect.addEventListener('change', () => {
+    const year = yearSelect.value;
+    window.location.href = `/check-all-year-board?year=${year}`;
+  });
 });
 
 class CheckAllYearBoard {
@@ -16,15 +26,15 @@ class CheckAllYearBoard {
   }
 
   // 출석부를 만듭니다.
-  async makeAttendance() {
+  async makeAttendance(year) {
     await this.simulateLoading();
-    await this.getBoard();
+    await this.getBoard(year);
     await this.stopLoading();
   }
 
   // 학년, 반, 날짜에 따른 출석부를 가져옵니다.
-  async getBoard() {
-    const data = await fetch(`/board/viewAllYearBoard/고등부/2024`);
+  async getBoard(year) {
+    const data = await fetch(`/board/viewAllYearBoard/고등부/${year}`);
     const response = await data.json();
     await this.wrapBoard(response.data);
   }
@@ -125,6 +135,8 @@ class CheckAllYearBoard {
     const data = [];
     for (let a = 1; a <= totalGrade; a++) {
       for (let b = 1; b <= totalClass[a]; b++) {
+        if (!item[a]) continue;
+        if (!item[a][b]) continue;
         for (let key in item[a][b]) {
           const student = {
             grade: a,
@@ -139,7 +151,7 @@ class CheckAllYearBoard {
                 : (student[date.slice(5)] = '❌');
               student.total += item[a][b][key][date].check.data[0];
             } else {
-              student[date.slice(5)] = 0;
+              student[date.slice(5)] = '❌';
             }
           });
           data.push(student);

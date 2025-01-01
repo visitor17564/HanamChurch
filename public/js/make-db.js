@@ -158,14 +158,14 @@ class Database {
     const studentId = result.id;
     const studentName = result.properties['name'].title[0].plain_text;
     // 해당연도와 첫 주일 계산
-    const ThisYear = 2024;
-    const startDate = new Date('2024-01-07');
+    const ThisYear = 2025;
+    const startDate = new Date('2025-01-07');
     let date = startDate;
     let specialDate = '';
     // 특별한 날이 있으면 추가합니다.
-    specialDate = new Date('2024-12-25');
+    specialDate = new Date('2025-12-25');
     // ThisYear연도의 마지막 날짜를 구합니다.
-    const lastDate = new Date('2024-12-31');
+    const lastDate = new Date('2025-12-31');
     // 마지막 날짜까지 반복문을 돌립니다.
     while (date <= lastDate) {
       await this.makeCheckRow(studentId, date, studentName);

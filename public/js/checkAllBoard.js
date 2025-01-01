@@ -44,10 +44,13 @@ class CheckAllBoard {
     const totalClass = {
       1: 6,
       2: 5,
-      3: 3,
+      3: 4,
     };
     for (let a = 1; a <= totalGrade; a++) {
       for (let b = 1; b <= totalClass[a]; b++) {
+        if (item.checkedCount[a][b]['totalCount'] === 0) {
+          continue;
+        }
         const div = `
         <div class="attendanceDiv" data-grade="${a}" data-class="${b}">
           <a class="name" href="/attendance?grade=${a}&class=${b}">${a}학년 ${b}반</a>
