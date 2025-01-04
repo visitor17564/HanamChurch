@@ -55,7 +55,7 @@ class Attendance {
       case 1:
         switch (classNum) {
           case 1:
-            teacherName = '박인영';
+            teacherName = '선희정';
             break;
           case 2:
             teacherName = '이은진';
