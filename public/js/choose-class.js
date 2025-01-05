@@ -6,8 +6,8 @@ function wrapClass() {
   );
   let count = 0;
   if (grade === 1) count = 6;
-  else if (grade === 2) count = 5;
-  else if (grade === 3) count = 3;
+  else if (grade === 2) count = 4;
+  else if (grade === 3) count = 4;
 
   for (let i = 1; i <= count; i++) {
     const button = document.createElement('button');
