@@ -25,6 +25,7 @@ class Attendance {
     this.totalOnList = 0;
     this.checkNewCount = 0;
     this.totalNewCount = 0;
+    this.isRequestInProcess = false;
   }
 
   // 학년, 반, 선생님 이름을 div로 만들어서 wrapGrade에 넣습니다.
@@ -275,25 +276,38 @@ class Attendance {
 
   // 출석을 체크합니다.
   async boardCheck(checkId, organizationId) {
-    if (checkId !== 'null') {
-      const data = await fetch(`/board/checkAttendance/${checkId}`, {
-        method: 'PATCH',
-      });
-      const response = await data.json();
-      return response;
-    } else {
-      const body = {
-        date: this.dateHelper.date,
-      };
-      const data = await fetch(`/board/makeAttendance/${organizationId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      });
-      const response = await data.json();
-      return response;
+    if (this.isRequestInProcess) {
+      alert('🥲이전 출첵을 처리중입니다. 🙏잠시만 기다려주세요.');
+      return;
+    }
+    this.isRequestInProcess = true;
+
+    try {
+      if (checkId !== 'null') {
+        const data = await fetch(`/board/checkAttendance/${checkId}`, {
+          method: 'PATCH',
+        });
+        const response = await data.json();
+        this.isRequestInProcess = false;
+        return response;
+      } else {
+        const body = {
+          date: this.dateHelper.date,
+        };
+        const data = await fetch(`/board/makeAttendance/${organizationId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(body),
+        });
+        const response = await data.json();
+        this.isRequestInProcess = false;
+        return response;
+      }
+    } catch (error) {
+      this.isRequestInProcess = false;
+      console.error('Error:', error);
     }
   }
 
@@ -332,7 +346,6 @@ class Attendance {
   // 로딩을 멈춥니다.
   stopLoading() {
     const exBox = document.querySelector('.ex-box');
-
     // 로딩 종료
     exBox.style.display = 'none';
   }
