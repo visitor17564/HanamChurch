@@ -358,7 +358,7 @@ export class BoardService {
       // rowToData.length - 1;
       for (let e = 0; e < rowToData.length - 1; e++) {
         const dataToKey = rowToData[e].split(',');
-        const dataObject = {};
+        // const dataObject = {};
         // 데이터 분석
         const grade = parseInt(dataToKey[0]);
         const classNum = parseInt(dataToKey[1]);
@@ -386,7 +386,7 @@ export class BoardService {
         }
 
         try {
-          const [result] = await this.pool.execute(
+          await this.pool.execute(
             'INSERT INTO organization (userId, grade, class, year, department, role, is_on_list) VALUES (?, ?, ?, ?, ?, ?, ?)',
             [userId, grade, classNum, 2025, '고등부', 0, isOnList],
           );
