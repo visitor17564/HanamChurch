@@ -483,6 +483,13 @@ export class BoardService {
     date: Date,
     checkId: number | null,
   ) {
+    const existAttendance = await this.checkExistAttandance(
+      organizationId,
+      date,
+    );
+    if (existAttendance.result) {
+      return existAttendance.id;
+    }
     let checkerId = null;
     if (checkId) {
       checkerId = checkId;
@@ -581,5 +588,45 @@ export class BoardService {
       [organizationId],
     );
     return rows[0].is_new[0];
+  }
+
+  async checkExistAttandance(organizationId: number, date: Date) {
+    const result = {
+      id: null,
+      result: false,
+    };
+    const [rows] = await this.pool.execute(
+      `SELECT id, board_check
+       FROM board_check
+       WHERE organizationId = ?
+       and date = ?`,
+      [organizationId, date],
+    );
+    if (rows.length > 0) {
+      const boardCheck = rows[0].board_check.readInt8(0);
+      const id = rows[0].id;
+      if (boardCheck === 1) {
+        result.id = id;
+        result.result = true;
+        return result;
+      } else {
+        try {
+          await this.pool.execute(
+            `UPDATE board_check
+             SET board_check = ?
+             WHERE id = ?`,
+            [1, id],
+          );
+          result.id = id;
+          result.result = true;
+          return result;
+        } catch (error) {
+          console.error('Error updating board:', error);
+          throw error;
+        }
+      }
+    } else {
+      return result;
+    }
   }
 }
