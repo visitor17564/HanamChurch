@@ -173,7 +173,7 @@ class Attendance {
 
       // div뿌리기
       const name = item.name;
-      const checkColor = check ? 'green' : 'gray';
+      const checkColor = check ? '#FF0000' : '#CCCCCC';
       const checkSvg = `
         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="${checkColor}" version="1.1" class="checkIcon" width="2em" height="2em" viewBox="0 0 305.002 305.002" xml:space="preserve">
           <g>
