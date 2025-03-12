@@ -258,15 +258,15 @@ class Attendance {
         const organizationId = targetDiv.dataset.organizationid;
         const response = await this.boardCheck(checkId, organizationId);
         if (response.data !== 0) {
-          // targetDiv 아래 svg의 fill을 green으로 바꿉니다.
-          targetDiv.querySelector('svg').setAttribute('fill', 'green');
+          // targetDiv 아래 svg의 fill을 FF0000으로 바꿉니다.
+          targetDiv.querySelector('svg').setAttribute('fill', '#FF0000');
           this.changeCount(1, isOnList);
           if (response.data !== 1) {
             targetDiv.dataset.checkid = response.data;
           }
         } else {
-          // targetDiv 아래 svg의 fill을 gray으로 바꿉니다.
-          targetDiv.querySelector('svg').setAttribute('fill', 'gray');
+          // targetDiv 아래 svg의 fill을 #CCCCCC으로 바꿉니다.
+          targetDiv.querySelector('svg').setAttribute('fill', '#CCCCCC');
           this.changeCount(response.data, isOnList);
         }
       });
