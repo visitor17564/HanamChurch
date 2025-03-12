@@ -130,7 +130,7 @@ class CheckAllYearBoard {
     const totalClass = {
       1: 6,
       2: 5,
-      3: 3,
+      3: 4,
     };
     const data = [];
     for (let a = 1; a <= totalGrade; a++) {
