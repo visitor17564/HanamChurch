@@ -131,6 +131,7 @@ class Attendance {
     this.wrapAddStudentButton();
     this.wrapBottomButton();
     this.setStudentEventListener();
+    this.setEventCheckEventListener();
     this.modalHelper.setAddStudentModalEventListener();
     this.modalHelper.addNameEventListener();
     this.modalHelper.addSaveAndAddStudentEventListener();
@@ -184,8 +185,19 @@ class Attendance {
           </g>
         </svg>
         `;
-      const userId = item.id;
       const organizationId = item.organizationId;
+      let eventDiv = '';
+      if (item.event.length > 0) {
+        eventDiv = `<div class="eventDiv">`;
+        item.event.forEach((event) => {
+          const eventSvg = this.getEventSvg(event.type, event.check);
+          eventDiv += `
+            <div class="eventCheck" data-eventId="${event.id}" data-eventType="${event.type}" data-eventCheckId="${event.eventCheckId}" data-organizationId="${organizationId}" data-content="${event.check}">${eventSvg}</div>
+          `;
+        });
+        eventDiv += `</div>`;
+      }
+      const userId = item.id;
       const checkId = item.checkId;
       const isOnList = item.is_on_list.data[0];
       let newFriendSpan = '';
@@ -193,10 +205,13 @@ class Attendance {
         newFriendSpan = `&nbsp;<span class="codeGreen">새친구</span>`;
       }
       const div = `
-      <div class="attendanceDiv">
-        <div class="name" data-userId="${userId}" data-organizationId="${organizationId}">🐤 ${name} ${newFriendSpan}</div>
-        <div class="check" data-checkId="${checkId}" data-isOnList="${isOnList}" data-organizationId="${organizationId}">${checkSvg}</div>
-      </div>
+        <div class="attendanceDiv">
+          <div class="name" data-userId="${userId}" data-organizationId="${organizationId}">🐤 ${name} ${newFriendSpan}</div>
+          <div class="checkAndEventDiv">
+            <div class="check" data-checkId="${checkId}" data-isOnList="${isOnList}" data-organizationId="${organizationId}">${checkSvg}</div>
+            ${eventDiv}
+          </div>
+        </div>
       `;
       attendanceDiv.innerHTML += div;
     });
@@ -274,6 +289,45 @@ class Attendance {
     // 수정버튼 누르면 학생정보 수정
   }
 
+  // 학생의 이벤트를 체크하는 이벤트리스너를 설정합니다.
+  setEventCheckEventListener() {
+    const checkDivArray = document.querySelectorAll('.eventCheck');
+    checkDivArray.forEach((checkDiv) => {
+      checkDiv.addEventListener('click', async (event) => {
+        // event가 일어난 node의 상위노드중 자신을 포함한 가장 가까운 div를 찾습니다.
+        const targetDiv = event.target.closest('.eventCheck');
+        const eventId = parseInt(targetDiv.dataset.eventid);
+        const eventCheckId = parseInt(targetDiv.dataset.eventcheckid);
+        const organizationId = parseInt(targetDiv.dataset.organizationid);
+        const eventType = parseInt(targetDiv.dataset.eventtype);
+        let content = '';
+        if (eventType !== 0) {
+          content = '';
+        } else {
+          const check = parseInt(targetDiv.dataset.content);
+          content = check === 1 ? 0 : 1;
+        }
+        const response = await this.eventCheck(
+          eventId,
+          eventCheckId,
+          organizationId,
+          content,
+        );
+        console.log(response);
+        targetDiv.dataset.content = response.data.content;
+        targetDiv.dataset.eventcheckid = response.data.id;
+        if (response.data.content === 1) {
+          // targetDiv 아래 svg의 stroke을 FF0000으로 바꿉니다.
+          targetDiv.querySelector('svg').setAttribute('stroke', '#FF0000');
+        } else {
+          // targetDiv 아래 svg의 stroke을 #CCCCCC으로 바꿉니다.
+          targetDiv.querySelector('svg').setAttribute('stroke', '#CCCCCC');
+        }
+      });
+    });
+    // 수정버튼 누르면 학생정보 수정
+  }
+
   // 출석을 체크합니다.
   async boardCheck(checkId, organizationId) {
     if (this.isRequestInProcess) {
@@ -295,6 +349,56 @@ class Attendance {
           date: this.dateHelper.date,
         };
         const data = await fetch(`/board/makeAttendance/${organizationId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(body),
+        });
+        const response = await data.json();
+        this.isRequestInProcess = false;
+        return response;
+      }
+    } catch (error) {
+      this.isRequestInProcess = false;
+      console.error('Error:', error);
+    }
+  }
+
+  // 이벤트를 체크합니다.
+  async eventCheck(eventId, eventCheckId, organizationId, content) {
+    if (this.isRequestInProcess) {
+      alert('🥲이전 이벤트를 처리중입니다. 🙏잠시만 기다려주세요.');
+      return;
+    }
+    this.isRequestInProcess = true;
+
+    try {
+      if (eventCheckId !== 0) {
+        const body = {
+          content: content,
+          eventId: eventId,
+          organizationId: organizationId,
+          date: this.dateHelper.date,
+        };
+        const data = await fetch(`/event/updateEvent/${eventCheckId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(body),
+        });
+        const response = await data.json();
+        this.isRequestInProcess = false;
+        return response;
+      } else {
+        const body = {
+          eventId: eventId,
+          organizationId: organizationId,
+          content: content,
+          date: this.dateHelper.date,
+        };
+        const data = await fetch(`/event/makeEvent`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -348,5 +452,28 @@ class Attendance {
     const exBox = document.querySelector('.ex-box');
     // 로딩 종료
     exBox.style.display = 'none';
+  }
+
+  // 이벤트 타입에 따른 svg를 반환합니다.
+  getEventSvg(eventType, eventCheck) {
+    const checkColor = eventCheck ? '#FF0000' : '#CCCCCC';
+    switch (eventType) {
+      case 0:
+        return `<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="${checkColor}" version="1.1" class="checkIcon" width="100px" height="2em" viewBox="0 0 24 24">
+                  <g id="File / Note_Edit">
+                  <path id="Vector" d="M10.0002 4H7.2002C6.08009 4 5.51962 4 5.0918 4.21799C4.71547 4.40973 4.40973 4.71547 4.21799 5.0918C4 5.51962 4 6.08009 4 7.2002V16.8002C4 17.9203 4 18.4801 4.21799 18.9079C4.40973 19.2842 4.71547 19.5905 5.0918 19.7822C5.5192 20 6.07899 20 7.19691 20H16.8031C17.921 20 18.48 20 18.9074 19.7822C19.2837 19.5905 19.5905 19.2839 19.7822 18.9076C20 18.4802 20 17.921 20 16.8031V14M16 5L10 11V14H13L19 8M16 5L19 2L22 5L19 8M16 5L19 8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </g>
+                </svg>`;
+      case 1:
+        return `<svg>이벤트2</svg>`;
+      case 2:
+        return `<svg>이벤트3</svg>`;
+      default:
+        return `<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="${checkColor}" version="1.1" class="checkIcon" width="100px" height="2em" viewBox="0 0 24 24">
+                  <g id="File / Note_Edit">
+                  <path id="Vector" d="M10.0002 4H7.2002C6.08009 4 5.51962 4 5.0918 4.21799C4.71547 4.40973 4.40973 4.71547 4.21799 5.0918C4 5.51962 4 6.08009 4 7.2002V16.8002C4 17.9203 4 18.4801 4.21799 18.9079C4.40973 19.2842 4.71547 19.5905 5.0918 19.7822C5.5192 20 6.07899 20 7.19691 20H16.8031C17.921 20 18.48 20 18.9074 19.7822C19.2837 19.5905 19.5905 19.2839 19.7822 18.9076C20 18.4802 20 17.921 20 16.8031V14M16 5L10 11V14H13L19 8M16 5L19 2L22 5L19 8M16 5L19 8" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </g>
+                </svg>`;
+    }
   }
 }

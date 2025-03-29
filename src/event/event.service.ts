@@ -3,7 +3,7 @@ import { pool } from '../mssql';
 import * as fs from 'fs';
 
 @Injectable()
-export class BoardService {
+export class EventService {
   private pool;
 
   constructor() {
@@ -22,7 +22,7 @@ export class BoardService {
     }
   }
 
-  async getAllYearBoard(department: string, year: number) {
+  async getAllYearEvent(department: string, year: number) {
     try {
       const [rows] = await this.pool.execute(
         `
@@ -63,7 +63,7 @@ export class BoardService {
     }
   }
 
-  async getAllBoard(checkedDate: Date) {
+  async getAllEvent(checkedDate: Date) {
     const formattedDate = this.formatDate(checkedDate);
     const year = checkedDate.getFullYear();
     try {
@@ -315,7 +315,7 @@ export class BoardService {
     }
   }
 
-  async getBoard(checkedDate: Date, gradeNumber: number, classNumber: number) {
+  async getEvent(checkedDate: Date, gradeNumber: number, classNumber: number) {
     // 모든 학생 리스트 가져오기
     const classMembers = await this.getClassMembers(
       gradeNumber,
@@ -323,7 +323,7 @@ export class BoardService {
       checkedDate,
     );
 
-    // classBoard의 id값을 배열로 만듭니다.
+    // classEvent의 id값을 배열로 만듭니다.
     return classMembers;
   }
 
@@ -335,51 +335,20 @@ export class BoardService {
         `SELECT u.id, u.name, u.gender, u.phone, u.birth, u.created_at, 
                 o.id AS organizationId, o.year, o.department, o.grade, o.class, o.role, o.school, o.is_on_list, o.is_new, o.follow, 
                 bc.id AS checkId, bc.board_check, bc.checkerId,
-                c.id AS commentId, c.comment
+                c.id AS commentId, c.comment,
+                ec.id AS eventId, ec.event_check,
+                e.name AS eventName, e.type AS eventType
          FROM organization o
          LEFT JOIN users u ON o.userId = u.id
          LEFT JOIN board_check bc ON bc.organizationId = o.id AND bc.date = ?
          LEFT JOIN comments c ON c.organizationId = o.id
+         LEFT JOIN event_check ec ON ec.organization_id = o.id
+         LEFT JOIN event e ON e.id = ec.event_id and e.active = 1
          WHERE o.grade = ? AND o.class = ?
          and o.year = ?`,
         [formattedDate, gradeNum, classNum, year],
       );
       const response = rows;
-
-      const [activeEvent] = await this.pool.execute(
-        `SELECT e.id, e.name, e.type
-         FROM event e
-         WHERE e.active = 1`,
-      );
-
-      // response를 순회하며 eventId가 null인 경우를 처리합니다.
-      for (const row of response) {
-        row.event = [];
-        if (activeEvent.length > 0) {
-          for (const event of activeEvent) {
-            const insertEvent = {
-              id: event.id,
-              name: event.name,
-              type: event.type,
-              eventCheckId: 0,
-              check: 0,
-            };
-            // event_check 테이블에서 organization_id = row.organizationId이고 event_id = event.id인 경우를 찾습니다.
-            const [eventCheck] = await this.pool.execute(
-              `SELECT id, event_check FROM event_check WHERE organization_id = ? AND event_id = ? AND date = ?`,
-              [row.organizationId, event.id, formattedDate],
-            );
-            if (eventCheck.length > 0) {
-              insertEvent.eventCheckId = eventCheck[0].id;
-              insertEvent.check = eventCheck[0].event_check;
-            } else {
-              insertEvent.check = 0;
-            }
-            row.event.push(insertEvent);
-          }
-        }
-      }
-
       return response;
     } catch (error) {
       console.error('Error fetching class members:', error);
@@ -433,37 +402,6 @@ export class BoardService {
     });
   }
 
-  async addBoardFromCsv() {
-    fs.readFile('board.csv', 'utf8', async (err, data) => {
-      const rowToData = data.split(/\r?\n/);
-
-      // 비동기문제고 dateArray를 따로 만들어서 해결
-      const dateArray = [];
-      const date = new Date('2024-1-7');
-      const lastDate = new Date('2024-12-31');
-
-      while (date <= lastDate) {
-        dateArray.push(new Date(date)); // 새로운 Date 객체를 배열에 추가
-        date.setDate(date.getDate() + 7);
-      }
-      const christmas = new Date(2024, 11, 25);
-      dateArray.push(christmas);
-
-      for (let e = 0; e < rowToData.length - 1; e++) {
-        const dataToKey = rowToData[e].split(',');
-        const grade = parseInt(dataToKey[0]);
-        const classNum = parseInt(dataToKey[1]);
-        const name = dataToKey[2];
-        const user = await this.getUser(name, grade, classNum);
-        const organizationId = user[0].id;
-        for (let a = 3; a < dataToKey.length; a++) {
-          const check = dataToKey[a].toUpperCase() === 'TRUE' ? 1 : 0;
-          this.checkBoard(organizationId, dateArray[a - 3], check, null);
-        }
-      }
-    });
-  }
-
   async getUser(name: string, grade: number, classNum: number) {
     try {
       const [rows] = await this.pool.execute(
@@ -480,70 +418,87 @@ export class BoardService {
     }
   }
 
-  async checkBoard(
+  async updateEvent(
+    eventCheckId: number,
+    eventId: number,
     organizationId: number,
+    content: number | null,
     date: Date,
-    check: number,
-    checkerId: number,
   ) {
+    const response = {
+      id: 0,
+      content: 0,
+    };
     try {
       const [rows] = await this.pool.execute(
         `SELECT *
-         FROM board_check
-         WHERE organizationId = ? AND date = ?`,
-        [organizationId, date],
+         FROM event_check
+         WHERE id = ?`,
+        [eventCheckId],
       );
       if (rows.length > 0) {
         await this.pool.execute(
-          `UPDATE board_check
-           SET board_check = ?, checkerId = ?
-           WHERE organizationId = ? AND date = ?`,
-          [check, checkerId, organizationId, date],
+          `UPDATE event_check
+           SET event_check = ?, checker_id = ?, updated_at = current_timestamp()
+           WHERE id = ?`,
+          [content, 0, eventCheckId],
         );
+        response.id = eventCheckId;
+        response.content = content;
       } else {
-        await this.pool.execute(
-          `INSERT INTO board_check (organizationId, date, board_check, checkerId)
-           VALUES (?, ?, ?, ?)`,
-          [organizationId, date, check, checkerId],
+        const [row] = await this.pool.execute(
+          `INSERT INTO event_check (event_id, organization_id, event_check, checker_id, date, created_at)
+           VALUES (?, ?, ?, ?, ?, current_timestamp())`,
+          [eventId, organizationId, content, 0, date],
         );
+        response.id = row.insertId;
+        response.content = content;
       }
+      return response;
     } catch (error) {
       console.error('Error fetching board:', error);
       throw error;
     }
   }
 
-  async makeAttendance(
+  async makeEvent(
+    eventId: number,
     organizationId: number,
+    content: number | null,
     date: Date,
-    checkId: number | null,
   ) {
-    const existAttendance = await this.checkExistAttandance(
+    const existEvent = await this.checkExistEventCheck(
+      eventId,
       organizationId,
       date,
     );
-    if (existAttendance.result) {
-      return existAttendance.id;
-    }
-    let checkerId = null;
-    if (checkId) {
-      checkerId = checkId;
+
+    const response = {
+      id: 0,
+      content: 0,
+    };
+
+    if (existEvent.result) {
+      const eventCheckId = existEvent.id;
+      return this.updateEvent(
+        eventCheckId,
+        eventId,
+        organizationId,
+        content,
+        date,
+      );
     }
     try {
       const [row] = await this.pool.execute(
-        `INSERT INTO board_check (organizationId, date, board_check, checkerId)
-          VALUES (?, ?, 1, ?)`,
-        [organizationId, date, checkerId],
+        `INSERT INTO event_check (event_id, organization_id, event_check, checker_id, date, created_at)
+          VALUES (?, ?, ?, ?, ?, current_timestamp())`,
+        [eventId, organizationId, content, 0, date],
       );
 
-      const checkCount = await this.checkCount(organizationId);
-      const isNew = await this.checkIsNew(organizationId);
+      response.id = row.insertId;
+      response.content = content;
 
-      if (checkCount === 5 && isNew === 1) {
-        await this.updateIsOnList(organizationId, 1);
-      }
-
-      return row.insertId;
+      return response;
     } catch (error) {
       console.error('Error fetching board:', error);
       throw error;
@@ -625,41 +580,28 @@ export class BoardService {
     return rows[0].is_new[0];
   }
 
-  async checkExistAttandance(organizationId: number, date: Date) {
+  async checkExistEventCheck(
+    eventId: number,
+    organizationId: number,
+    date: Date,
+  ) {
     const result = {
       id: null,
       result: false,
     };
     const [rows] = await this.pool.execute(
-      `SELECT id, board_check
-       FROM board_check
-       WHERE organizationId = ?
+      `SELECT id
+       FROM event_check
+       WHERE event_id = ?
+       and organization_id = ?
        and date = ?`,
-      [organizationId, date],
+      [eventId, organizationId, date],
     );
     if (rows.length > 0) {
-      const boardCheck = rows[0].board_check.readInt8(0);
       const id = rows[0].id;
-      if (boardCheck === 1) {
-        result.id = id;
-        result.result = true;
-        return result;
-      } else {
-        try {
-          await this.pool.execute(
-            `UPDATE board_check
-             SET board_check = ?
-             WHERE id = ?`,
-            [1, id],
-          );
-          result.id = id;
-          result.result = true;
-          return result;
-        } catch (error) {
-          console.error('Error updating board:', error);
-          throw error;
-        }
-      }
+      result.id = id;
+      result.result = true;
+      return result;
     } else {
       return result;
     }

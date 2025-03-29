@@ -161,6 +161,12 @@ body {
   padding-bottom: 3%;
 }
 
+.checkAndEventDiv {
+  display: flex;
+  justify-content: space-between;
+  gap: 5%;
+}
+
 .totalDiv {
   display: flex;
   justify-content: space-between;
