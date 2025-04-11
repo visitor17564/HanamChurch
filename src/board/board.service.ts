@@ -664,4 +664,27 @@ export class BoardService {
       return result;
     }
   }
+
+  // 새친구 조회
+  async getNewStudent(year: number, department: string) {
+    try {
+      const [rows] = await this.pool.execute(
+        `SELECT u.id, u.name, u.gender, u.phone, u.birth, u.created_at, 
+            o.id AS organizationId, o.year, o.department, o.grade, o.class, o.role, o.school, o.is_on_list, o.is_new, o.follow, 
+            c.id AS commentId, c.comment,
+            (SELECT COUNT(*) FROM board_check WHERE board_check = 1 AND organizationId = o.id) AS attendance_count
+         FROM organization o
+         LEFT JOIN users u ON o.userId = u.id
+         LEFT JOIN comments c ON c.organizationId = o.id
+         WHERE o.year = ? AND o.department = ?
+         ORDER BY o.grade, o.class, u.name`,
+        [year, department],
+      );
+      const response = rows.filter((row) => row.is_new[0] === 1);
+      return response;
+    } catch (error) {
+      console.error('Error fetching new students:', error);
+      throw error;
+    }
+  }
 }

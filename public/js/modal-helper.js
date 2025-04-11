@@ -242,6 +242,8 @@ export class ModalHelper {
         document.getElementById('editFollow').style.display = 'block';
         document.getElementById('deleteFollow').style.display = 'block';
       } else {
+        document.getElementById('followName').innerText = '';
+        document.getElementById('followName').dataset.id = '';
         document.getElementById('addFollow').style.display = 'block';
         document.getElementById('editFollow').style.display = 'none';
         document.getElementById('deleteFollow').style.display = 'none';

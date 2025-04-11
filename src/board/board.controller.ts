@@ -68,4 +68,14 @@ export class BoardController {
     const response = new ResponseDto(true, '출석 완료!', data);
     return response;
   }
+
+  @Get('/viewNewStudent/:year/:department')
+  async getNewStudent(
+    @Param('year') year: number,
+    @Param('department') department: string,
+  ) {
+    const data = await this.boardService.getNewStudent(year, department);
+    const response = new ResponseDto(true, '새친구 조회 완료!', data);
+    return response;
+  }
 }

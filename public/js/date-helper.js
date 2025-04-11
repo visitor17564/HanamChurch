@@ -2,6 +2,9 @@ export class DateHelper {
   constructor(item) {
     this.date = this.makeDate(this.date);
     this.attendance = item;
+    this.year = this.makeYear(this.date);
+    this.startYear = 2024;
+    this.endYear = 2025;
   }
   // date를 yyyy-mm-dd string 형식으로 바꿉니다.
   makeDate(date) {
@@ -50,6 +53,13 @@ export class DateHelper {
     return sundayString;
   }
 
+  // year를 생성합니다.
+  makeYear(date) {
+    // date를 yyyy-mm-dd string 형식으로 바꿉니다.
+    const year = date.split('-')[0];
+    return parseInt(year);
+  }
+
   // date를 div로 만들어서 wrapDate에 넣습니다.
   wrapDate(date) {
     const dateDiv = document.querySelector('.wrapDate');
@@ -59,6 +69,65 @@ export class DateHelper {
     <div class="goToAfterWeek">▶️</div>
     `;
     dateDiv.innerHTML = div;
+  }
+
+  // year를 div로 만들어서 wrapDate에 넣습니다.
+  wrapYear(year) {
+    const dateDiv = document.querySelector('.wrapDate');
+    const div = `
+    <div class="goToBeforeYear">◀️</div>
+    <select class="yearDiv year-only">
+      ${this.generateYearOptions()}
+    </select>
+    <div class="goToAfterYear">▶️</div>
+    `;
+    dateDiv.innerHTML = div;
+    const yearDiv = document.querySelector('.yearDiv');
+    yearDiv.value = year;
+  }
+
+  // generateYearOptions 메서드 추가
+  generateYearOptions() {
+    let options = '';
+    for (let year = this.startYear; year <= this.endYear; year++) {
+      options += `<option value="${year}">${year}</option>`;
+    }
+    return options;
+  }
+
+  // 이전년도로 이동합니다.
+  async goToBeforeYear() {
+    // this.date를 date객체로 바꾸고 thisYear로 선언합니다.
+    const thisYear = this.year;
+    if (thisYear <= this.startYear) {
+      return;
+    }
+    // thisYear를 1년 전으로 바꿉니다.
+    const beforeYear = thisYear - 1;
+    this.year = beforeYear;
+    // .yearDiv의 value를 thisYear로 바꿉니다.
+    const yearDiv = document.querySelector('.yearDiv');
+    yearDiv.value = beforeYear;
+    this.attendance.makeNewFriend();
+  }
+
+  // 다음년도로 이동합니다.
+  async goToAfterYear() {
+    // this.date를 date객체로 바꾸고 thisYear로 선언합니다.
+    const thisYear = this.year;
+    if (thisYear >= this.endYear) {
+      return;
+    }
+
+    // 현재 연도에서 1년 더하기
+    const afterYear = this.year + 1;
+    this.year = afterYear;
+
+    // .yearDiv의 value를 afterYear로 변경
+    const yearDiv = document.querySelector('.yearDiv');
+    yearDiv.value = afterYear;
+
+    this.attendance.makeNewFriend();
   }
 
   // 이전주로 이동합니다.
@@ -169,6 +238,27 @@ export class DateHelper {
     const dateDiv = document.querySelector('.dateDiv');
     dateDiv.addEventListener('change', (event) => {
       this.goToThisWeek(event, dateDiv);
+    });
+  }
+
+  // 연도를 이동하는 이벤트리스너를 설정합니다.
+  setMoveYearEventlistener() {
+    const beforeYear = document.querySelector('.goToBeforeYear');
+    // this.year가 startYear라면 beforeYear를 비활성화합니다.
+    beforeYear.addEventListener('click', () => {
+      this.goToBeforeYear();
+    });
+    // this.year가 endYear라면 afterYear를 비활성화합니다.
+    const afterYear = document.querySelector('.goToAfterYear');
+    afterYear.addEventListener('click', () => {
+      this.goToAfterYear();
+    });
+    // yearDiv에 change 이벤트를 추가합니다.
+    const yearDiv = document.querySelector('.yearDiv');
+    yearDiv.addEventListener('change', (event) => {
+      this.year = parseInt(event.target.value);
+      this.attendance.makeNewFriend();
+      this.setMoveYearEventlistener();
     });
   }
 

@@ -32,4 +32,16 @@ export class AppController {
   async goToCheckAllYearBoard() {
     return;
   }
+
+  @Get('check-new-student')
+  @Render('check-new-student')
+  async goToCheckNewStudent() {
+    return;
+  }
+
+  @Get('check-event')
+  @Render('check-event')
+  async goToCheckEvent() {
+    return;
+  }
 }
