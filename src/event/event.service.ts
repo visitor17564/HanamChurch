@@ -63,268 +63,53 @@ export class EventService {
     }
   }
 
-  async getAllEvent(checkedDate: Date) {
-    const formattedDate = this.formatDate(checkedDate);
-    const year = checkedDate.getFullYear();
+  async getAllEvent() {
+    // 모든 이벤트 가져오기
     try {
       const [rows] = await this.pool.execute(
-        `SELECT o.grade, o.class, o.is_on_list, bc.board_check, u.gender
-          FROM organization o
-          LEFT JOIN board_check bc ON bc.organizationId = o.id AND bc.date = ?
-          LEFT JOIN users u ON o.userId = u.id
-          WHERE o.year = ? AND o.department = '고등부'
-        `,
-        [formattedDate, year],
+        `SELECT *
+          FROM event e
+          order by id desc`,
       );
-      const response = {
-        totalCount: {
-          totalCount: 0,
-          onListCount: {
-            maleCount: 0,
-            femaleCount: 0,
-            totalCount: 0,
-          },
-          newListCount: {
-            maleCount: 0,
-            femaleCount: 0,
-            totalCount: 0,
-          },
-          1: {
-            1: {
-              totalCount: 0,
-              onListCount: 0,
-              newListCount: 0,
-            },
-            2: {
-              totalCount: 0,
-              onListCount: 0,
-              newListCount: 0,
-            },
-            3: {
-              totalCount: 0,
-              onListCount: 0,
-              newListCount: 0,
-            },
-            4: {
-              totalCount: 0,
-              onListCount: 0,
-              newListCount: 0,
-            },
-            5: {
-              totalCount: 0,
-              onListCount: 0,
-              newListCount: 0,
-            },
-            6: {
-              totalCount: 0,
-              onListCount: 0,
-              newListCount: 0,
-            },
-          },
-          2: {
-            1: {
-              totalCount: 0,
-              onListCount: 0,
-              newListCount: 0,
-            },
-            2: {
-              totalCount: 0,
-              onListCount: 0,
-              newListCount: 0,
-            },
-            3: {
-              totalCount: 0,
-              onListCount: 0,
-              newListCount: 0,
-            },
-            4: {
-              totalCount: 0,
-              onListCount: 0,
-              newListCount: 0,
-            },
-            5: {
-              totalCount: 0,
-              onListCount: 0,
-              newListCount: 0,
-            },
-          },
-          3: {
-            1: {
-              totalCount: 0,
-              onListCount: 0,
-              newListCount: 0,
-            },
-            2: {
-              totalCount: 0,
-              onListCount: 0,
-              newListCount: 0,
-            },
-            3: {
-              totalCount: 0,
-              onListCount: 0,
-              newListCount: 0,
-            },
-            4: {
-              totalCount: 0,
-              onListCount: 0,
-              newListCount: 0,
-            },
-          },
-        },
-        checkedCount: {
-          totalCount: 0,
-          onListCount: {
-            maleCount: 0,
-            femaleCount: 0,
-            totalCount: 0,
-          },
-          newListCount: {
-            maleCount: 0,
-            femaleCount: 0,
-            totalCount: 0,
-          },
-          1: {
-            1: {
-              totalCount: 0,
-              onListCount: 0,
-              newListCount: 0,
-            },
-            2: {
-              totalCount: 0,
-              onListCount: 0,
-              newListCount: 0,
-            },
-            3: {
-              totalCount: 0,
-              onListCount: 0,
-              newListCount: 0,
-            },
-            4: {
-              totalCount: 0,
-              onListCount: 0,
-              newListCount: 0,
-            },
-            5: {
-              totalCount: 0,
-              onListCount: 0,
-              newListCount: 0,
-            },
-            6: {
-              totalCount: 0,
-              onListCount: 0,
-              newListCount: 0,
-            },
-          },
-          2: {
-            1: {
-              totalCount: 0,
-              onListCount: 0,
-              newListCount: 0,
-            },
-            2: {
-              totalCount: 0,
-              onListCount: 0,
-              newListCount: 0,
-            },
-            3: {
-              totalCount: 0,
-              onListCount: 0,
-              newListCount: 0,
-            },
-            4: {
-              totalCount: 0,
-              onListCount: 0,
-              newListCount: 0,
-            },
-            5: {
-              totalCount: 0,
-              onListCount: 0,
-              newListCount: 0,
-            },
-          },
-          3: {
-            1: {
-              totalCount: 0,
-              onListCount: 0,
-              newListCount: 0,
-            },
-            2: {
-              totalCount: 0,
-              onListCount: 0,
-              newListCount: 0,
-            },
-            3: {
-              totalCount: 0,
-              onListCount: 0,
-              newListCount: 0,
-            },
-            4: {
-              totalCount: 0,
-              onListCount: 0,
-              newListCount: 0,
-            },
-          },
-        },
-      };
-      rows.forEach((row) => {
-        if (row.board_check !== null && row.board_check[0] === 1) {
-          response['checkedCount']['totalCount'] += 1;
-          response['checkedCount'][row.grade][row.class]['totalCount'] += 1;
-          if (row.is_on_list[0] === 1) {
-            response['checkedCount'][row.grade][row.class]['onListCount'] += 1;
-            response['checkedCount']['onListCount']['totalCount'] += 1;
-            if (row.gender[0] === 1) {
-              response['checkedCount']['onListCount']['maleCount'] += 1;
-            } else {
-              response['checkedCount']['onListCount']['femaleCount'] += 1;
-            }
-          } else {
-            response['checkedCount'][row.grade][row.class]['newListCount'] += 1;
-            response['checkedCount']['newListCount']['totalCount'] += 1;
-            if (row.gender[0] === 1) {
-              response['checkedCount']['newListCount']['maleCount'] += 1;
-            } else {
-              response['checkedCount']['newListCount']['femaleCount'] += 1;
-            }
-          }
-        }
-        response['totalCount']['totalCount'] += 1;
-        response['totalCount'][row.grade][row.class]['totalCount'] += 1;
-        if (row.is_on_list[0] === 1) {
-          response['totalCount'][row.grade][row.class]['onListCount'] += 1;
-          response['totalCount']['onListCount']['totalCount'] += 1;
-          if (row.gender[0] === 1) {
-            response['totalCount']['onListCount']['maleCount'] += 1;
-          } else {
-            response['totalCount']['onListCount']['femaleCount'] += 1;
-          }
-        } else {
-          response['totalCount'][row.grade][row.class]['newListCount'] += 1;
-          response['totalCount']['newListCount']['totalCount'] += 1;
-          if (row.gender[0] === 1) {
-            response['totalCount']['newListCount']['maleCount'] += 1;
-          } else {
-            response['totalCount']['newListCount']['femaleCount'] += 1;
-          }
-        }
-      });
-      return response;
+      return rows;
     } catch (error) {
       console.error('Error fetching all board:', error);
       throw error;
     }
   }
 
-  async getEvent(checkedDate: Date, gradeNumber: number, classNumber: number) {
-    // 모든 학생 리스트 가져오기
-    const classMembers = await this.getClassMembers(
-      gradeNumber,
-      classNumber,
-      checkedDate,
-    );
+  async getEvent(id: number) {
+    // 특정 이벤트 가져오기
+    try {
+      const [rows] = await this.pool.execute(
+        `SELECT *
+          FROM event e
+          WHERE id = ?`,
+        [id],
+      );
+      return rows[0];
+    } catch (error) {
+      console.error('Error fetching all board:', error);
+      throw error;
+    }
+  }
 
-    // classEvent의 id값을 배열로 만듭니다.
-    return classMembers;
+  async getEventHistory(eventId: number, organizationId: number) {
+    // 개별 이벤트 히스토리 조회
+    try {
+      const [rows] = await this.pool.execute(
+        `SELECT ec.id, ec.event_check, ec.created_at, e.name, e.type, ec.date
+         FROM event_check ec
+         LEFT JOIN event e ON e.id = ec.event_id
+         WHERE ec.organization_id = ? AND ec.event_id = ? AND ec.event_check = 1
+         ORDER BY ec.date DESC`,
+        [organizationId, eventId],
+      );
+      return rows;
+    } catch (error) {
+      console.error('Error fetching all board:', error);
+      throw error;
+    }
   }
 
   async getClassMembers(gradeNum: number, classNum: number, checkedDate: Date) {
@@ -604,6 +389,32 @@ export class EventService {
       return result;
     } else {
       return result;
+    }
+  }
+
+  // 이벤트 명단 조회
+  async getStudentEvent(eventId: number) {
+    try {
+      const [rows] = await this.pool.execute(
+        `SELECT u.id, u.name, u.gender, u.phone, u.birth, u.created_at, 
+        o.id AS organizationId, o.year, o.department, o.grade, o.class, o.role, o.school, o.is_on_list, o.is_new, o.follow, 
+        c.id AS commentId, c.comment,
+        (SELECT COUNT(*) FROM event_check WHERE event_check = 1 AND organization_id = o.id) AS event_check_count
+         FROM organization o
+         LEFT JOIN users u ON o.userId = u.id
+         LEFT JOIN comments c ON c.organizationId = o.id
+         INNER JOIN event_check ec ON ec.organization_id = o.id AND ec.event_id = ? AND ec.event_check = 1
+         GROUP BY o.id, u.id, u.name, u.gender, u.phone, u.birth, u.created_at, 
+         o.year, o.department, o.grade, o.class, o.role, o.school, o.is_on_list, o.is_new, o.follow, 
+         c.id, c.comment
+         ORDER BY event_check_count DESC`,
+        [eventId],
+      );
+      const response = rows;
+      return response;
+    } catch (error) {
+      console.error('Error fetching new students:', error);
+      throw error;
     }
   }
 }

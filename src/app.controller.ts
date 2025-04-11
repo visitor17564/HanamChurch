@@ -39,6 +39,12 @@ export class AppController {
     return;
   }
 
+  @Get('choose-event')
+  @Render('choose-event')
+  async goToChooseEvent() {
+    return;
+  }
+
   @Get('check-event')
   @Render('check-event')
   async goToCheckEvent() {

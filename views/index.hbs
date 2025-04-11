@@ -16,14 +16,20 @@
     <h2 class="title">꿈을 갖고 세상 속으로<br>하남교회 드림하이!</h2>
   </div>
   <div class="chooseGrade">
-    <div class="subtitle">학년을 선택해주세요</div>
+    <div class="subtitle">출석하러가기</div>
     <div class="wrapGrade">
       <button class="gradeButton contentText" onclick="location.href='/choose-class?grade=1'"><h2>🐤 1학년</h2></button>
       <button class="gradeButton contentText" onclick="location.href='/choose-class?grade=2'"><h2>🐤 2학년</h2></button>
       <button class="gradeButton contentText" onclick="location.href='/choose-class?grade=3'"><h2>🐤 3학년</h2></button>
-      <button class="gradeButton contentText" onclick="location.href='/check-all-board'"><h2>🐤 전체보기(주)</h2></button>
+      {{!-- <button class="gradeButton contentText" onclick="location.href='/check-all-year-board'"><h2>🐤 전체보기(연)</h2></button> --}}
+    </div>
+  </div>
+    <div class="chooseGrade">
+    <div class="subtitle">자료보기</div>
+    <div class="wrapGrade">
+      <button class="gradeButton contentText" onclick="location.href='/check-all-board'"><h2>🐤 주간통계</h2></button>
       <button class="gradeButton contentText" onclick="location.href='/check-new-student'"><h2>🐤 새친구보기</h2></button>
-      <button class="gradeButton contentText" onclick="location.href='/check-event'"><h2>🎉 이벤트</h2></button>
+      <button class="gradeButton contentText" onclick="location.href='/choose-event'"><h2>🎉 이벤트</h2></button>
       {{!-- <button class="gradeButton contentText" onclick="location.href='/check-all-year-board'"><h2>🐤 전체보기(연)</h2></button> --}}
     </div>
   </div>

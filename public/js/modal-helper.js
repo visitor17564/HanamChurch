@@ -400,4 +400,66 @@ export class ModalHelper {
       (response) => response.json(),
     );
   }
+
+  // 이벤트 내역을 보여주는 이벤트리스너를 생성합니다.
+  addEventListModalEventListener() {
+    const eventListButtons = document.querySelectorAll('.checkAndEventDiv');
+    eventListButtons.forEach((button) => {
+      button.addEventListener('click', (event) => {
+        this.openEventDetailListModal(event);
+      });
+    });
+
+    // 모달창 닫기
+    document
+      .querySelector('.FLOATING_DIV_MASK_EVENT')
+      .addEventListener('click', () => {
+        this.closeEventDetailListModal();
+      });
+    document
+      .getElementById('modal-close-button-event')
+      .addEventListener('click', () => {
+        this.closeEventDetailListModal();
+      });
+  }
+
+  // 이벤트 내역 모달창을 엽니다.
+  async openEventDetailListModal(event) {
+    const userId = event.target.dataset.userid;
+    // this.students에서 key 값이 userId인 value를 가져옵니다.
+    const student = this.students[userId];
+    const grade = student.grade;
+    const classNum = student.class;
+    const name = student.name;
+    const organizationId = student.organizationId;
+
+    // get 파라미터에서 event를 가져옵니다.
+    const urlParams = new URLSearchParams(window.location.search);
+    const eventId = urlParams.get('event');
+
+    const studentInfoDiv = `
+      <div>
+        <h4>${name} (${grade}학년 ${classNum}반)</h4>
+      </div>`;
+
+    const eventHistoryData = await fetch(
+      `/event/getEventHistory/${eventId}/${organizationId}`,
+    ).then((response) => response.json());
+
+    let eventHistoryDiv = `<ul>`;
+    eventHistoryData.data.forEach((event) => {
+      eventHistoryDiv += `<li>${event.date.split('T')[0]}</li>`;
+    });
+    eventHistoryDiv += `</ul>`;
+
+    document.getElementById('eventStudentInfo').innerHTML = studentInfoDiv;
+    document.getElementById('eventHistoryList').innerHTML = eventHistoryDiv;
+    document.getElementById('eventHistory').style.display = 'block';
+    console.log(document.getElementById('eventHistory'));
+  }
+
+  // 이벤트내역 모달창을 닫습니다.
+  closeEventDetailListModal() {
+    document.getElementById('eventHistory').style.display = 'none';
+  }
 }

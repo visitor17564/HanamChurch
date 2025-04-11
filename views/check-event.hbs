@@ -5,11 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/reset.css">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;600&display=swap" rel="stylesheet">  <link rel="stylesheet" href="/css/reset.css">
   <link rel="stylesheet" href="/css/attendance.css">
   <link rel="stylesheet" href="/css/student.css">
-  <script type="module" src="/js/checkAllBoard.js"></script>
+  <script type="module" src="/js/event.js"></script>
   <title>하남교회 고등부 출석부</title>
 </head>
 <body>
@@ -17,10 +16,10 @@
     <div class = "header">
       <div class="chooseGrade">
         <div class="wrapGrade">
-          <div class="gradeDiv contentText"><h2>🐤 전체출석부</h2></div>
+          
         </div>
       </div>
-      <div class="wrapDate"></div>
+      <div class="wrapDate">🏃이벤트 참여자 명단🏃‍♂️‍➡️</div>
       <div class="ex-box">
         <div class="loading-wrap loading-wrap--js">
           <div class="loading-spinner loading-spinner--js"></div>
@@ -30,13 +29,181 @@
     </div>
   </header>
   <div class="wrapAttendance"></div>
-
+  
+  {{!-- 학생정보 모달 --}}
+  <div id="studentDetails" class="studentDetails">
+    <div class="FLOATING_DIV_MASK"></div>
+    <div class="FLOATING_DIV_BLOCK">
+        <div class="FLOATING_CONTENT">
+            <div id="add-modal" class="addModal">
+                <div id="modal-close-button" class="modal-close-button">
+                    <span>
+                        <svg class="closeSvg" viewBox="0 0 24 24">
+                            <title>닫기</title>
+                            <path d="M4.92893219,19.0710678 C1.02368927,15.1658249 1.02368927,8.83417511 4.92893219,4.92893219 C8.83417511,1.02368927 15.1658249,1.02368927 19.0710678,4.92893219 C22.9763107,8.83417511 22.9763107,15.1658249 19.0710678,19.0710678 C15.1658249,22.9763107 8.83417511,22.9763107 4.92893219,19.0710678 Z"></path>
+                            <path d="M15.5355339 15.5355339L8.46446609 8.46446609M15.5355339 8.46446609L8.46446609 15.5355339"></path>
+                        </svg>
+                    </span>
+                </div>
+                <div id="studentInfo" class="studentInfo">
+                  <table class="studentTable">
+                      <tbody>
+                        <tr>
+                            <th class="studentDetailTitle">🫠 이름</th>
+                        </tr>
+                        <tr>
+                            <td>
+                              <input type="text" name="name" id="name" placeholder="이름">
+                              <select title="gender" name="gender" id="gender">
+                                <option value="" disabled selected>성별 선택</option>
+                                <option value="1">🚹</option>
+                                <option value="0">🚺</option>
+                              </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="studentDetailTitle">📱 전화번호</th>
+                        </tr>
+                        <tr>
+                            <td style="width: 70%;">
+                                <select name="mobile1" id="mobile1" title="010">
+                                    <option value="010">010</option><option value="011">011</option><option value="016">016</option><option value="017">017</option><option value="019">019</option></select>
+                                <span>-</span>
+                                <input type="tel" name="mobile2" title="1234" id="mobile2" value="" maxlength="4">
+                                <span>-</span>
+                                <input type="tel" name="mobile3" title="5678" id="mobile3" value="" maxlength="4">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="studentDetailTitle">🎂 생일</th>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input type="date" name="birthday" id="birthday" placeholder="생일">
+                            </td>
+                        </tr>
+                        <tr id="regDateTr">
+                            <th class="studentDetailTitle">📆 등록일</th>
+                        </tr>
+                        <tr id="regDateTr2">
+                            <td>
+                              <input type="date" name="regDate" id="regDate" placeholder="등록일">
+                            </td>
+                        </tr>
+                        <tr id="checkCountTr">
+                            <th class="studentDetailTitle">✅ 출석횟수</th>
+                        </tr>
+                        <tr id="checkCountTr2">
+                            <td>
+                              <span id="checkCount">0</span>/<span>53</span>
+                            </td>
+                        </tr>
+                        <tr></tr>
+                            <th class="studentDetailTitle">🏫 학교</th>
+                        </tr>
+                        <tr>
+                            <td><input type="text" name="school" id="school" placeholder="학교"></td>
+                        </tr>
+                        <tr id="followTr">
+                            <th class="studentDetailTitle">🫡 전도자</th>
+                        </tr>
+                        <tr id="followTr2">
+                          <td class="followTd">
+                            <div id="followName"></div>
+                            <span id="addFollow" class="codeGreen">추가</span>
+                            <span id="editFollow" class="codeGreen">수정</span>
+                            <span id="deleteFollow" class="codeRed">삭제</span>
+                          </td>
+                        </tr>
+                        <tr>
+                            <th class="studentDetailTitle">💬 코멘트</th>
+                        </tr>
+                        <tr>
+                          <td>
+                            <textarea name="comment" id="comment" placeholder="코멘트"></textarea>
+                          </td>
+                        </tr>
+                        {{!-- 과거코멘트 --}}
+                        <tr id="pastCommentsTitle">
+                            <th class="studentDetailTitle">📜 과거코멘트</th>
+                        </tr>
+                        <tr id="pastComments">
+                        </tr>
+                    </tbody>
+                  </table>
+                  <div class="saveStudent">
+                    <button id="saveStudent" class="saveStudentButton">수정하기</button>
+                    <button id="makeStudent" class="saveStudentButton">등록하기</button>
+                    {{!-- 닫기추가 --}}
+                    <button id="closeStudent" class="saveStudentButton">닫기</button>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </div>
   </div>
+
+  {{!-- 전도자 검색모달 --}}
+  <div id="followModal" class="studentDetails">
+    <div class="FLOATING_DIV_MASK_FOLLOW"></div>
+    <div class="FLOATING_DIV_BLOCK_FOLLOW">
+        <div class="FLOATING_CONTENT_FOLLOW">
+            <div id="add-modal-follow" class="followModal">
+                <div id="modal-close-button-follow" class="modal-close-button">
+                    <span>
+                        <svg class="closeSvg" viewBox="0 0 24 24">
+                            <title>닫기</title>
+                            <path d="M4.92893219,19.0710678 C1.02368927,15.1658249 1.02368927,8.83417511 4.92893219,4.92893219 C8.83417511,1.02368927 15.1658249,1.02368927 19.0710678,4.92893219 C22.9763107,8.83417511 22.9763107,15.1658249 19.0710678,19.0710678 C15.1658249,22.9763107 8.83417511,22.9763107 4.92893219,19.0710678 Z"></path>
+                            <path d="M15.5355339 15.5355339L8.46446609 8.46446609M15.5355339 8.46446609L8.46446609 15.5355339"></path>
+                        </svg>
+                    </span>
+                </div>
+                <div id="findStudent" class="studentInfo">
+                  <div class="findStudent">
+                    <input type="text" name="findFollowName" id="findFollowName" placeholder="전도자 이름">
+                    <button id="searchFollow" class="findFollowButton">검색</button>
+                  </div>
+                  <div id="wrap-follows">
+                  </div>
+                  <div class="chooseFollow">
+                    <button id="chooseFollow" class="findFollowButton">선택</button>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  {{!-- 이벤트 내역 모달 --}}
+  <div id="eventHistory" class="studentDetails">
+    <div class="FLOATING_DIV_MASK_EVENT"></div>
+    <div class="FLOATING_DIV_BLOCK_EVENT">
+        <div class="FLOATING_CONTENT_EVENT">
+            <div id="add-modal-event" class="addModal">
+                <div id="modal-close-button-event" class="modal-close-button">
+                    <span>
+                        <svg class="closeSvg" viewBox="0 0 24 24">
+                            <title>닫기</title>
+                            <path d="M4.92893219,19.0710678 C1.02368927,15.1658249 1.02368927,8.83417511 4.92893219,4.92893219 C8.83417511,1.02368927 15.1658249,1.02368927 19.0710678,4.92893219 C22.9763107,8.83417511 22.9763107,15.1658249 19.0710678,19.0710678 C15.1658249,22.9763107 8.83417511,22.9763107 4.92893219,19.0710678 Z"></path>
+                            <path d="M15.5355339 15.5355339L8.46446609 8.46446609M15.5355339 8.46446609L8.46446609 15.5355339"></path>
+                        </svg>
+                    </span>
+                </div>
+                <!-- Add additional content for the modal here -->
+                <div id="eventStudentInfo" class="studentInfo"></div>
+                <div id="eventHistoryList" class="eventDetails">
+                  <p id="eventDescription">이벤트 내역이 없습니다.</p>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <footer>
     <div class="footer">
-      <a href="https://www.youtube.com/@hanamchurch_DreamHigh">
-        <img class="youtubeLogo" src="/img/youtube.png" alt="youtubeLogo">
-      </a>
+      ✅ <strong class="totalOnList">1</strong>/<strong class="totalNewCount">1</strong>
+      (제적등록(5회이상)/총새친구)
     </div>
   </footer>
 </body>

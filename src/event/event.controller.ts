@@ -6,6 +6,44 @@ import { ResponseDto } from 'src/ResponseDTO/response-dto';
 export class EventController {
   constructor(private readonly eventService: EventService) {}
 
+  // 모든 이벤트를 가져오는 함수
+  @Get('getAllEvent')
+  async getAllEvent() {
+    const data = await this.eventService.getAllEvent();
+    const response = new ResponseDto(true, '이벤트 조회 완료!', data);
+    return response;
+  }
+
+  // 특정 이벤트
+  @Get('getEvent/:eventId')
+  async getEvent(@Param('eventId') eventId: number) {
+    const data = await this.eventService.getEvent(eventId);
+    const response = new ResponseDto(true, '이벤트 조회 완료!', data);
+    return response;
+  }
+
+  // 이벤트 명단 호출
+  @Get('/getEventCounts/:eventId')
+  async getStudentEvent(@Param('eventId') eventId: number) {
+    const data = await this.eventService.getStudentEvent(eventId);
+    const response = new ResponseDto(true, '이벤트 명단 조회 완료!', data);
+    return response;
+  }
+
+  // 개별 이벤트 히스토리 조회
+  @Get('/getEventHistory/:eventId/:organizationId')
+  async getEventHistory(
+    @Param('eventId') eventId: number,
+    @Param('organizationId') organizationId: number,
+  ) {
+    const data = await this.eventService.getEventHistory(
+      eventId,
+      organizationId,
+    );
+    const response = new ResponseDto(true, '이벤트 히스토리 조회 완료!', data);
+    return response;
+  }
+
   @Patch('/updateEvent/:eventCheckId')
   async updateEvent(@Param('eventCheckId') eventCheckId: number, @Req() req) {
     const content = req.body.content;
