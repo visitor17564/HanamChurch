@@ -396,24 +396,44 @@ export class EventService {
   async getStudentEvent(eventId: number) {
     try {
       const [rows] = await this.pool.execute(
-        `SELECT u.id, u.name, u.gender, u.phone, u.birth, u.created_at, 
-        o.id AS organizationId, o.year, o.department, o.grade, o.class, o.role, o.school, o.is_on_list, o.is_new, o.follow, 
-        c.id AS commentId, c.comment,
-        (SELECT COUNT(*) FROM event_check WHERE event_check = 1 AND organization_id = o.id) AS event_check_count
+        `SELECT 
+           u.id,
+           u.name,
+           u.gender,
+           u.phone,
+           u.birth,
+           u.created_at,
+           o.id AS organizationId,
+           o.year,
+           o.department,
+           o.grade,
+           o.class,
+           o.role,
+           o.school,
+           o.is_on_list,
+           o.is_new,
+           o.follow,
+           c.id AS commentId,
+           c.comment,
+           (SELECT COUNT(*) 
+            FROM event_check 
+            WHERE event_check = 1 AND organization_id = o.id AND event_id = ?) AS event_check_count
          FROM organization o
-         LEFT JOIN users u ON o.userId = u.id
+         INNER JOIN event_check ec ON ec.organization_id = o.id 
+                                   AND ec.event_id = ? 
+                                   AND ec.event_check = 1
+         LEFT JOIN users u ON u.id = o.userId
          LEFT JOIN comments c ON c.organizationId = o.id
-         INNER JOIN event_check ec ON ec.organization_id = o.id AND ec.event_id = ? AND ec.event_check = 1
-         GROUP BY o.id, u.id, u.name, u.gender, u.phone, u.birth, u.created_at, 
-         o.year, o.department, o.grade, o.class, o.role, o.school, o.is_on_list, o.is_new, o.follow, 
-         c.id, c.comment
+         GROUP BY o.id, u.id, u.name, u.gender, u.phone, u.birth, u.created_at,
+                  o.year, o.department, o.grade, o.class, o.role, o.school, 
+                  o.is_on_list, o.is_new, o.follow, c.id, c.comment
          ORDER BY event_check_count DESC`,
-        [eventId],
+        [eventId, eventId],
       );
       const response = rows;
       return response;
     } catch (error) {
-      console.error('Error fetching new students:', error);
+      console.error('Error fetching event students:', error);
       throw error;
     }
   }
