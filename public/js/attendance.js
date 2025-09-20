@@ -156,17 +156,17 @@ class Attendance {
       totalOnClass += 1;
       let check = 0;
       if (item.board_check !== null) {
-        if (item.board_check.data[0] === 1) {
-          check = item.board_check.data[0];
+        if (item.board_check) {
+          check = item.board_check;
           checkOnClass++;
-          if (item.is_on_list.data[0] === 1) {
+          if (item.is_on_list) {
             checkOnList++;
           } else {
             checkNewCount++;
           }
         }
       }
-      if (item.is_on_list.data[0] === 1) {
+      if (item.is_on_list) {
         totalOnList++;
       } else {
         totalNewCount++;
@@ -199,7 +199,7 @@ class Attendance {
       }
       const userId = item.id;
       const checkId = item.checkId;
-      const isOnList = item.is_on_list.data[0];
+      const isOnList = item.is_on_list;
       let newFriendSpan = '';
       if (!isOnList) {
         newFriendSpan = `&nbsp;<span class="codeGreen">새친구</span>`;

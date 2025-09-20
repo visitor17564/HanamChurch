@@ -14,5 +14,6 @@ async function bootstrap() {
   });
 
   await app.listen(8080);
+  console.log('Application is running on: http://localhost:8080');
 }
 bootstrap();
