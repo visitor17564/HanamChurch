@@ -24,18 +24,17 @@ export class BoardService {
 
   async getAllYearBoard(department: string, year: number) {
     try {
-      const [rows] = await this.pool.execute(
-        `
-        select bc.id, bc.date, bc.board_check, o.grade, o.class, u.name from board_check bc 
-          left join organization o 
-            on o.id = bc.organizationId
-          left join users u
-            on u.id = o.userId
-          where o.year = ?
-          and o.department = ?
-        `,
-        [year, department],
+      const request = this.pool.request();
+      request.input('year', year);
+      request.input('department', department);
+      const result = await request.query(
+        `SELECT bc.id, bc.date, bc.board_check, o.grade, o.class, u.name 
+         FROM [hanam-church-database].board_check bc 
+           LEFT JOIN [hanam-church-database].organization o ON o.id = bc.organizationId
+           LEFT JOIN [hanam-church-database].users u ON u.id = o.userId
+         WHERE o.year = @year AND o.department = @department`,
       );
+      const rows = result.recordset;
       const response = {};
       rows.forEach((row) => {
         const date = this.formatDate(row.date);
@@ -67,15 +66,17 @@ export class BoardService {
     const formattedDate = this.formatDate(checkedDate);
     const year = checkedDate.getFullYear();
     try {
-      const [rows] = await this.pool.execute(
+      const request = this.pool.request();
+      request.input('formattedDate', formattedDate);
+      request.input('year', year);
+      const result = await request.query(
         `SELECT o.grade, o.class, o.is_on_list, bc.board_check, u.gender
-          FROM organization o
-          LEFT JOIN board_check bc ON bc.organizationId = o.id AND bc.date = ?
-          LEFT JOIN users u ON o.userId = u.id
-          WHERE o.year = ? AND o.department = '고등부'
-        `,
-        [formattedDate, year],
+         FROM [hanam-church-database].organization o
+         LEFT JOIN [hanam-church-database].board_check bc ON bc.organizationId = o.id AND bc.date = @formattedDate
+         LEFT JOIN [hanam-church-database].users u ON o.userId = u.id
+         WHERE o.year = @year AND o.department = N'고등부'`,
       );
+      const rows = result.recordset;
       const response = {
         totalCount: {
           totalCount: 0,
@@ -267,10 +268,13 @@ export class BoardService {
         },
       };
       rows.forEach((row) => {
-        if (row.board_check !== null && row.board_check[0] === 1) {
+        if (
+          row.board_check !== null &&
+          (row.board_check === true || row.board_check === 1)
+        ) {
           response['checkedCount']['totalCount'] += 1;
           response['checkedCount'][row.grade][row.class]['totalCount'] += 1;
-          if (row.is_on_list[0] === 1) {
+          if (row.is_on_list === true || row.is_on_list === 1) {
             response['checkedCount'][row.grade][row.class]['onListCount'] += 1;
             response['checkedCount']['onListCount']['totalCount'] += 1;
             if (row.gender[0] === 1) {
@@ -281,7 +285,7 @@ export class BoardService {
           } else {
             response['checkedCount'][row.grade][row.class]['newListCount'] += 1;
             response['checkedCount']['newListCount']['totalCount'] += 1;
-            if (row.gender[0] === 1) {
+            if (row.gender === true || row.gender === 1) {
               response['checkedCount']['newListCount']['maleCount'] += 1;
             } else {
               response['checkedCount']['newListCount']['femaleCount'] += 1;
@@ -290,10 +294,10 @@ export class BoardService {
         }
         response['totalCount']['totalCount'] += 1;
         response['totalCount'][row.grade][row.class]['totalCount'] += 1;
-        if (row.is_on_list[0] === 1) {
+        if (row.is_on_list === true || row.is_on_list === 1) {
           response['totalCount'][row.grade][row.class]['onListCount'] += 1;
           response['totalCount']['onListCount']['totalCount'] += 1;
-          if (row.gender[0] === 1) {
+          if (row.gender === true || row.gender === 1) {
             response['totalCount']['onListCount']['maleCount'] += 1;
           } else {
             response['totalCount']['onListCount']['femaleCount'] += 1;
@@ -301,7 +305,7 @@ export class BoardService {
         } else {
           response['totalCount'][row.grade][row.class]['newListCount'] += 1;
           response['totalCount']['newListCount']['totalCount'] += 1;
-          if (row.gender[0] === 1) {
+          if (row.gender === true || row.gender === 1) {
             response['totalCount']['newListCount']['maleCount'] += 1;
           } else {
             response['totalCount']['newListCount']['femaleCount'] += 1;
@@ -331,26 +335,29 @@ export class BoardService {
     const formattedDate = this.formatDate(checkedDate);
     const year = checkedDate.getFullYear();
     try {
-      const [rows] = await this.pool.execute(
+      const request = this.pool.request();
+      request.input('formattedDate', formattedDate);
+      request.input('gradeNum', gradeNum);
+      request.input('classNum', classNum);
+      request.input('year', year);
+      const result = await request.query(
         `SELECT u.id, u.name, u.gender, u.phone, u.birth, u.created_at, 
                 o.id AS organizationId, o.year, o.department, o.grade, o.class, o.role, o.school, o.is_on_list, o.is_new, o.follow, 
                 bc.id AS checkId, bc.board_check, bc.checkerId,
                 c.id AS commentId, c.comment
-         FROM organization o
-         LEFT JOIN users u ON o.userId = u.id
-         LEFT JOIN board_check bc ON bc.organizationId = o.id AND bc.date = ?
-         LEFT JOIN comments c ON c.organizationId = o.id
-         WHERE o.grade = ? AND o.class = ?
-         and o.year = ?`,
-        [formattedDate, gradeNum, classNum, year],
+         FROM [hanam-church-database].organization o
+         LEFT JOIN [hanam-church-database].users u ON o.userId = u.id
+         LEFT JOIN [hanam-church-database].board_check bc ON bc.organizationId = o.id AND bc.date = @formattedDate
+         LEFT JOIN [hanam-church-database].comments c ON c.organizationId = o.id
+         WHERE o.grade = @gradeNum AND o.class = @classNum AND o.year = @year`,
       );
-      const response = rows;
+      const response = result.recordset;
 
-      const [activeEvent] = await this.pool.execute(
-        `SELECT e.id, e.name, e.type
-         FROM event e
-         WHERE e.active = 1`,
+      const activeEventRequest = this.pool.request();
+      const activeEventResult = await activeEventRequest.query(
+        `SELECT e.id, e.name, e.type FROM [hanam-church-database].event e WHERE e.active = 1`,
       );
+      const activeEvent = activeEventResult.recordset;
 
       // response를 순회하며 eventId가 null인 경우를 처리합니다.
       for (const row of response) {
@@ -365,10 +372,15 @@ export class BoardService {
               check: 0,
             };
             // event_check 테이블에서 organization_id = row.organizationId이고 event_id = event.id인 경우를 찾습니다.
-            const [eventCheck] = await this.pool.execute(
-              `SELECT id, event_check FROM event_check WHERE organization_id = ? AND event_id = ? AND date = ?`,
-              [row.organizationId, event.id, formattedDate],
+            const eventCheckRequest = this.pool.request();
+            eventCheckRequest.input('organizationId', row.organizationId);
+            eventCheckRequest.input('eventId', event.id);
+            eventCheckRequest.input('formattedDate', formattedDate);
+            const eventCheckResult = await eventCheckRequest.query(
+              `SELECT id, event_check FROM [hanam-church-database].event_check 
+               WHERE organization_Id = @organizationId AND event_id = @eventId AND date = @formattedDate`,
             );
+            const eventCheck = eventCheckResult.recordset;
             if (eventCheck.length > 0) {
               insertEvent.eventCheckId = eventCheck[0].id;
               insertEvent.check = eventCheck[0].event_check;
@@ -410,23 +422,29 @@ export class BoardService {
         // 데이터베이스에 추가
         let userId;
         try {
-          const [result] = await this.pool.execute(
-            'INSERT INTO users (name, gender) VALUES (?, ?)',
-            [name, gender],
+          const request1 = this.pool.request();
+          request1.input('name', name);
+          request1.input('gender', gender);
+          const userResult = await request1.query(
+            'INSERT INTO [hanam-church-database].users (name, gender) OUTPUT INSERTED.id VALUES (@name, @gender)',
           );
-          userId = result.insertId;
+          userId = userResult.recordset[0].id;
         } catch (error) {
           console.error('Error inserting user:', error);
           throw error;
         }
 
         try {
-          await this.pool.execute(
-            'INSERT INTO organization (userId, grade, class, year, department, role, is_on_list) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [userId, grade, classNum, 2025, '고등부', 0, isOnList],
+          const request2 = this.pool.request();
+          request2.input('userId', userId);
+          request2.input('grade', grade);
+          request2.input('classNum', classNum);
+          request2.input('isOnList', isOnList);
+          await request2.query(
+            "INSERT INTO [hanam-church-database].organization (userId, grade, class, year, department, role, is_on_list) VALUES (@userId, @grade, @classNum, 2025, N'고등부', 0, @isOnList)",
           );
         } catch (error) {
-          console.error('Error inserting user:', error);
+          console.error('Error inserting organization:', error);
           throw error;
         }
       }
@@ -466,14 +484,17 @@ export class BoardService {
 
   async getUser(name: string, grade: number, classNum: number) {
     try {
-      const [rows] = await this.pool.execute(
+      const request = this.pool.request();
+      request.input('name', name);
+      request.input('grade', grade);
+      request.input('classNum', classNum);
+      const result = await request.query(
         `SELECT *
-         FROM users u
-         JOIN organization o ON o.userId = u.id
-         WHERE u.name = ? AND o.grade = ? AND o.class = ?`,
-        [name, grade, classNum],
+         FROM [hanam-church-database].users u
+         JOIN [hanam-church-database].organization o ON o.userId = u.id
+         WHERE u.name = @name AND o.grade = @grade AND o.class = @classNum`,
       );
-      return rows;
+      return result.recordset;
     } catch (error) {
       console.error('Error fetching user ID:', error);
       throw error;
@@ -487,24 +508,34 @@ export class BoardService {
     checkerId: number,
   ) {
     try {
-      const [rows] = await this.pool.execute(
-        `SELECT *
-         FROM board_check
-         WHERE organizationId = ? AND date = ?`,
-        [organizationId, date],
+      const request1 = this.pool.request();
+      request1.input('organizationId', organizationId);
+      request1.input('date', date);
+      const result = await request1.query(
+        `SELECT * FROM [hanam-church-database].board_check WHERE organizationId = @organizationId AND date = @date`,
       );
+      const rows = result.recordset;
+      
       if (rows.length > 0) {
-        await this.pool.execute(
-          `UPDATE board_check
-           SET board_check = ?, checkerId = ?
-           WHERE organizationId = ? AND date = ?`,
-          [check, checkerId, organizationId, date],
+        const request2 = this.pool.request();
+        request2.input('check', check);
+        request2.input('checkerId', checkerId);
+        request2.input('organizationId', organizationId);
+        request2.input('date', date);
+        await request2.query(
+          `UPDATE [hanam-church-database].board_check
+           SET board_check = @check, checkerId = @checkerId
+           WHERE organizationId = @organizationId AND date = @date`,
         );
       } else {
-        await this.pool.execute(
-          `INSERT INTO board_check (organizationId, date, board_check, checkerId)
-           VALUES (?, ?, ?, ?)`,
-          [organizationId, date, check, checkerId],
+        const request3 = this.pool.request();
+        request3.input('organizationId', organizationId);
+        request3.input('date', date);
+        request3.input('check', check);
+        request3.input('checkerId', checkerId);
+        await request3.query(
+          `INSERT INTO [hanam-church-database].board_check (organizationId, date, board_check, checkerId)
+           VALUES (@organizationId, @date, @check, @checkerId)`,
         );
       }
     } catch (error) {
@@ -530,10 +561,14 @@ export class BoardService {
       checkerId = checkId;
     }
     try {
-      const [row] = await this.pool.execute(
-        `INSERT INTO board_check (organizationId, date, board_check, checkerId)
-          VALUES (?, ?, 1, ?)`,
-        [organizationId, date, checkerId],
+      const request = this.pool.request();
+      request.input('organizationId', organizationId);
+      request.input('date', date);
+      request.input('checkerId', checkerId);
+      const result = await request.query(
+        `INSERT INTO [hanam-church-database].board_check (organizationId, date, board_check, checkerId)
+         OUTPUT INSERTED.id
+         VALUES (@organizationId, @date, 1, @checkerId)`,
       );
 
       const checkCount = await this.checkCount(organizationId);
@@ -543,7 +578,7 @@ export class BoardService {
         await this.updateIsOnList(organizationId, 1);
       }
 
-      return row.insertId;
+      return result.recordset[0].id;
     } catch (error) {
       console.error('Error fetching board:', error);
       throw error;
@@ -559,22 +594,24 @@ export class BoardService {
 
   async checkAttendance(checkId: number) {
     try {
-      const [rows] = await this.pool.execute(
-        `SELECT board_check, organizationId
-         FROM board_check
-         WHERE id = ?`,
-        [checkId],
+      const request1 = this.pool.request();
+      request1.input('checkId', checkId);
+      const result = await request1.query(
+        `SELECT board_check, organizationId FROM [hanam-church-database].board_check WHERE id = @checkId`,
       );
+      const rows = result.recordset;
+      
       if (rows.length > 0) {
-        let result = 1;
-        if (rows[0].board_check.readInt8(0) === 1) {
-          result = 0;
+        let resultValue = 1;
+        if (rows[0].board_check === true || rows[0].board_check === 1) {
+          resultValue = 0;
         }
-        await this.pool.execute(
-          `UPDATE board_check
-           SET board_check = ?
-           WHERE id = ?`,
-          [result, checkId],
+        
+        const request2 = this.pool.request();
+        request2.input('result', resultValue);
+        request2.input('checkId', checkId);
+        await request2.query(
+          `UPDATE [hanam-church-database].board_check SET board_check = @result WHERE id = @checkId`,
         );
 
         const organizationId = rows[0].organizationId;
@@ -582,11 +619,11 @@ export class BoardService {
         const isNew = await this.checkIsNew(organizationId);
         if (checkCount === 5 && isNew === 1) {
           await this.updateIsOnList(organizationId, 1);
-        } else if (checkCount === 4 && isNew === 1 && result === 0) {
+        } else if (checkCount === 4 && isNew === 1 && resultValue === 0) {
           await this.updateIsOnList(organizationId, 0);
         }
 
-        return result;
+        return resultValue;
       }
     } catch (error) {
       console.error('Error checking attendance:', error);
@@ -596,33 +633,33 @@ export class BoardService {
 
   async checkCount(organizationId: number) {
     // organizationId의 2024년 전체 출석 합계를 조회합니다.
-    const [rows] = await this.pool.execute(
-      `SELECT COUNT(*)
-        FROM board_check
-        WHERE organizationId = ? AND board_check = 1`,
-      [organizationId],
+    const request = this.pool.request();
+    request.input('organizationId', organizationId);
+    const result = await request.query(
+      `SELECT COUNT(*) as count
+       FROM [hanam-church-database].board_check
+       WHERE organizationId = @organizationId AND board_check = 1`,
     );
 
-    return rows[0]['COUNT(*)'];
+    return result.recordset[0].count;
   }
 
   async updateIsOnList(organizationId: number, state: number) {
-    await this.pool.execute(
-      `UPDATE organization
-       SET is_on_list = ?
-       WHERE id = ?`,
-      [state, organizationId],
+    const request = this.pool.request();
+    request.input('state', state);
+    request.input('organizationId', organizationId);
+    await request.query(
+      `UPDATE [hanam-church-database].organization SET is_on_list = @state WHERE id = @organizationId`,
     );
   }
 
   async checkIsNew(organizationId: number) {
-    const [rows] = await this.pool.execute(
-      `SELECT is_new
-       FROM organization
-       WHERE id = ?`,
-      [organizationId],
+    const request = this.pool.request();
+    request.input('organizationId', organizationId);
+    const result = await request.query(
+      `SELECT is_new FROM [hanam-church-database].organization WHERE id = @organizationId`,
     );
-    return rows[0].is_new[0];
+    return result.recordset[0].is_new;
   }
 
   async checkExistAttandance(organizationId: number, date: Date) {
@@ -630,27 +667,28 @@ export class BoardService {
       id: null,
       result: false,
     };
-    const [rows] = await this.pool.execute(
-      `SELECT id, board_check
-       FROM board_check
-       WHERE organizationId = ?
-       and date = ?`,
-      [organizationId, date],
+    const request = this.pool.request();
+    request.input('organizationId', organizationId);
+    request.input('date', date);
+    const queryResult = await request.query(
+      `SELECT id, board_check FROM [hanam-church-database].board_check
+       WHERE organizationId = @organizationId AND date = @date`,
     );
+    const rows = queryResult.recordset;
+    
     if (rows.length > 0) {
-      const boardCheck = rows[0].board_check.readInt8(0);
+      const boardCheck = rows[0].board_check;
       const id = rows[0].id;
-      if (boardCheck === 1) {
+      if (boardCheck === true || boardCheck === 1) {
         result.id = id;
         result.result = true;
         return result;
       } else {
         try {
-          await this.pool.execute(
-            `UPDATE board_check
-             SET board_check = ?
-             WHERE id = ?`,
-            [1, id],
+          const updateRequest = this.pool.request();
+          updateRequest.input('id', id);
+          await updateRequest.query(
+            `UPDATE [hanam-church-database].board_check SET board_check = 1 WHERE id = @id`,
           );
           result.id = id;
           result.result = true;
@@ -668,19 +706,24 @@ export class BoardService {
   // 새친구 조회
   async getNewStudent(year: number, department: string) {
     try {
-      const [rows] = await this.pool.execute(
+      const request = this.pool.request();
+      request.input('year', year);
+      request.input('department', department);
+      const result = await request.query(
         `SELECT u.id, u.name, u.gender, u.phone, u.birth, u.created_at, 
             o.id AS organizationId, o.year, o.department, o.grade, o.class, o.role, o.school, o.is_on_list, o.is_new, o.follow, 
             c.id AS commentId, c.comment,
-            (SELECT COUNT(*) FROM board_check WHERE board_check = 1 AND organizationId = o.id) AS attendance_count
-         FROM organization o
-         LEFT JOIN users u ON o.userId = u.id
-         LEFT JOIN comments c ON c.organizationId = o.id
-         WHERE o.year = ? AND o.department = ?
+            (SELECT COUNT(*) FROM [hanam-church-database].board_check WHERE board_check = 1 AND organizationId = o.id) AS attendance_count
+         FROM [hanam-church-database].organization o
+         LEFT JOIN [hanam-church-database].users u ON o.userId = u.id
+         LEFT JOIN [hanam-church-database].comments c ON c.organizationId = o.id
+         WHERE o.year = @year AND o.department = @department
          ORDER BY o.grade, o.class, u.name`,
-        [year, department],
       );
-      const response = rows.filter((row) => row.is_new[0] === 1);
+      const rows = result.recordset;
+      const response = rows.filter(
+        (row) => row.is_new === true || row.is_new === 1,
+      );
       return response;
     } catch (error) {
       console.error('Error fetching new students:', error);
