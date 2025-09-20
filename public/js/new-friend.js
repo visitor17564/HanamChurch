@@ -81,7 +81,7 @@ class NewFriend {
       const classNum = item.class;
       totalNewCount += 1;
       let onListSpan = '';
-      if (item.is_on_list.data[0]) {
+      if (item.is_on_list) {
         totalOnList += 1;
         onListSpan = `&nbsp;<span class="codeGreen">재적포함</span>`;
       }
