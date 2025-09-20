@@ -340,59 +340,101 @@ export class BoardService {
       request.input('gradeNum', gradeNum);
       request.input('classNum', classNum);
       request.input('year', year);
+
+      // 🚀 성능 개선: 단일 쿼리로 모든 데이터 조회
       const result = await request.query(
-        `SELECT u.id, u.name, u.gender, u.phone, u.birth, u.created_at, 
-                o.id AS organizationId, o.year, o.department, o.grade, o.class, o.role, o.school, o.is_on_list, o.is_new, o.follow, 
-                bc.id AS checkId, bc.board_check, bc.checkerId,
-                c.id AS commentId, c.comment
+        `SELECT 
+           u.id, u.name, u.gender, u.phone, u.birth, u.created_at, 
+           o.id AS organizationId, o.year, o.department, o.grade, o.class, o.role, o.school, o.is_on_list, o.is_new, o.follow, 
+           bc.id AS checkId, bc.board_check, bc.checkerId,
+           c.id AS commentId, c.comment,
+           e.id AS eventId, e.name AS eventName, e.type AS eventType, e.active,
+           ec.id AS eventCheckId, ec.event_check
          FROM [hanam-church-database].organization o
          LEFT JOIN [hanam-church-database].users u ON o.userId = u.id
          LEFT JOIN [hanam-church-database].board_check bc ON bc.organizationId = o.id AND bc.date = @formattedDate
          LEFT JOIN [hanam-church-database].comments c ON c.organizationId = o.id
-         WHERE o.grade = @gradeNum AND o.class = @classNum AND o.year = @year`,
+         LEFT JOIN [hanam-church-database].event_check ec ON ec.organization_Id = o.id AND ec.date = @formattedDate
+         LEFT JOIN [hanam-church-database].event e ON e.id = ec.event_id AND e.active = 1
+         WHERE o.grade = @gradeNum AND o.class = @classNum AND o.year = @year
+         ORDER BY o.id, e.id`,
       );
-      const response = result.recordset;
 
-      const activeEventRequest = this.pool.request();
-      const activeEventResult = await activeEventRequest.query(
-        `SELECT e.id, e.name, e.type FROM [hanam-church-database].event e WHERE e.active = 1`,
-      );
-      const activeEvent = activeEventResult.recordset;
+      // 🔧 결과 데이터 재구성: 학생별로 이벤트 정보 그룹핑
+      const studentMap = new Map();
 
-      // response를 순회하며 eventId가 null인 경우를 처리합니다.
-      for (const row of response) {
-        row.event = [];
-        if (activeEvent.length > 0) {
-          for (const event of activeEvent) {
-            const insertEvent = {
-              id: event.id,
-              name: event.name,
-              type: event.type,
-              eventCheckId: 0,
-              check: 0,
-            };
-            // event_check 테이블에서 organization_id = row.organizationId이고 event_id = event.id인 경우를 찾습니다.
-            const eventCheckRequest = this.pool.request();
-            eventCheckRequest.input('organizationId', row.organizationId);
-            eventCheckRequest.input('eventId', event.id);
-            eventCheckRequest.input('formattedDate', formattedDate);
-            const eventCheckResult = await eventCheckRequest.query(
-              `SELECT id, event_check FROM [hanam-church-database].event_check 
-               WHERE organization_Id = @organizationId AND event_id = @eventId AND date = @formattedDate`,
-            );
-            const eventCheck = eventCheckResult.recordset;
-            if (eventCheck.length > 0) {
-              insertEvent.eventCheckId = eventCheck[0].id;
-              insertEvent.check = eventCheck[0].event_check;
-            } else {
-              insertEvent.check = 0;
-            }
-            row.event.push(insertEvent);
+      result.recordset.forEach((row) => {
+        const studentId = row.organizationId;
+
+        // 학생 정보가 아직 없으면 생성
+        if (!studentMap.has(studentId)) {
+          studentMap.set(studentId, {
+            id: row.id,
+            name: row.name,
+            gender: row.gender,
+            phone: row.phone,
+            birth: row.birth,
+            created_at: row.created_at,
+            organizationId: row.organizationId,
+            year: row.year,
+            department: row.department,
+            grade: row.grade,
+            class: row.class,
+            role: row.role,
+            school: row.school,
+            is_on_list: row.is_on_list,
+            is_new: row.is_new,
+            follow: row.follow,
+            checkId: row.checkId,
+            board_check: row.board_check,
+            checkerId: row.checkerId,
+            commentId: row.commentId,
+            comment: row.comment,
+            event: [],
+          });
+        }
+
+        // 이벤트 정보가 있으면 추가
+        if (row.eventId) {
+          const student = studentMap.get(studentId);
+          const existingEvent = student.event.find((e) => e.id === row.eventId);
+
+          if (!existingEvent) {
+            student.event.push({
+              id: row.eventId,
+              name: row.eventName,
+              type: row.eventType,
+              eventCheckId: row.eventCheckId || 0,
+              check: row.event_check || 0,
+            });
           }
         }
-      }
+      });
 
-      return response;
+      // 🎯 활성 이벤트 중 체크되지 않은 이벤트도 추가
+      const activeEventsRequest = this.pool.request();
+      const activeEventsResult = await activeEventsRequest.query(
+        `SELECT id, name, type FROM [hanam-church-database].event WHERE active = 1`,
+      );
+
+      studentMap.forEach((student) => {
+        activeEventsResult.recordset.forEach((activeEvent) => {
+          const existingEvent = student.event.find(
+            (e) => e.id === activeEvent.id,
+          );
+          if (!existingEvent) {
+            student.event.push({
+              id: activeEvent.id,
+              name: activeEvent.name,
+              type: activeEvent.type,
+              eventCheckId: 0,
+              check: 0,
+            });
+          }
+        });
+      });
+
+      return Array.from(studentMap.values());
     } catch (error) {
       console.error('Error fetching class members:', error);
       throw error;
@@ -515,7 +557,7 @@ export class BoardService {
         `SELECT * FROM [hanam-church-database].board_check WHERE organizationId = @organizationId AND date = @date`,
       );
       const rows = result.recordset;
-      
+
       if (rows.length > 0) {
         const request2 = this.pool.request();
         request2.input('check', check);
@@ -600,13 +642,13 @@ export class BoardService {
         `SELECT board_check, organizationId FROM [hanam-church-database].board_check WHERE id = @checkId`,
       );
       const rows = result.recordset;
-      
+
       if (rows.length > 0) {
         let resultValue = 1;
         if (rows[0].board_check === true || rows[0].board_check === 1) {
           resultValue = 0;
         }
-        
+
         const request2 = this.pool.request();
         request2.input('result', resultValue);
         request2.input('checkId', checkId);
@@ -675,7 +717,7 @@ export class BoardService {
        WHERE organizationId = @organizationId AND date = @date`,
     );
     const rows = queryResult.recordset;
-    
+
     if (rows.length > 0) {
       const boardCheck = rows[0].board_check;
       const id = rows[0].id;
