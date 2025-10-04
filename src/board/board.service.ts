@@ -277,7 +277,7 @@ export class BoardService {
           if (row.is_on_list === true || row.is_on_list === 1) {
             response['checkedCount'][row.grade][row.class]['onListCount'] += 1;
             response['checkedCount']['onListCount']['totalCount'] += 1;
-            if (row.gender[0] === 1) {
+            if (row.gender === true || row.gender === 1) {
               response['checkedCount']['onListCount']['maleCount'] += 1;
             } else {
               response['checkedCount']['onListCount']['femaleCount'] += 1;

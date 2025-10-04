@@ -187,11 +187,7 @@ export class ModalHelper {
     }
     // 성별 초기화 후 입히기
     document.getElementById('gender').value = '';
-    if (student.gender.data) {
-      document.getElementById('gender').value = parseInt(
-        student.gender.data[0],
-      );
-    }
+    document.getElementById('gender').value = student.gender ? 1 : 0;
     // 전화번호 초기화 후 입히기
     document.getElementById('mobile2').value = '';
     document.getElementById('mobile3').value = '';
@@ -230,7 +226,7 @@ export class ModalHelper {
         : '';
     }
 
-    if (student.is_new.data[0] === 1) {
+    if (student.is_new === 1) {
       if (student.follow) {
         const data = await fetch(`/student/findStudentById/${student.follow}`);
         const response = await data.json();
@@ -332,7 +328,8 @@ export class ModalHelper {
   async getStudentCheckCount(organizationId) {
     const data = await fetch(`/student/checkCount/${organizationId}`);
     const response = await data.json();
-    return response.data[0]['COUNT(*)'];
+    console.log(response);
+    return response.data;
   }
 
   // 학생의 정보를 업데이트합니다.

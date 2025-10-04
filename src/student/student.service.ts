@@ -52,7 +52,7 @@ export class StudentService {
          FROM [hanam-church-database].board_check
          WHERE organizationId = @organizationId AND board_check = 1`,
       );
-      const response = result.recordset;
+      const response = result?.recordset[0].count;
       return response;
     } catch (error) {
       console.error('Error fetching class members:', error);

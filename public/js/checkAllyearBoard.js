@@ -146,10 +146,10 @@ class CheckAllYearBoard {
           };
           this.yearSundayArray.map((date) => {
             if (item[a][b][key][date]) {
-              item[a][b][key][date].check.data[0]
+              item[a][b][key][date].check
                 ? (student[date.slice(5)] = '✅')
                 : (student[date.slice(5)] = '❌');
-              student.total += item[a][b][key][date].check.data[0];
+              student.total += item[a][b][key][date].check;
             } else {
               student[date.slice(5)] = '❌';
             }
