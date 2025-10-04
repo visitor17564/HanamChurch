@@ -14,7 +14,7 @@ export class StudentService {
   async checkConnection() {
     try {
       // For pool initialization, see above
-      const [rows, fields] = await this.pool.query('SELECT * FROM `users`');
+      const [rows] = await this.pool.query('SELECT * FROM `users`');
       console.log(rows); // RowDataPacket[]
       // Connection is automatically released when query resolves
     } catch (err) {
@@ -63,7 +63,7 @@ export class StudentService {
   async updateStudent(studentId, body) {
     const transaction = this.pool.transaction();
     await transaction.begin();
-    
+
     try {
       // 학생 기본정보 수정
       let birth = null;
@@ -75,7 +75,7 @@ export class StudentService {
         follow = body.follow;
       }
       const created_at = new Date(body.created_at);
-      
+
       const request1 = transaction.request();
       request1.input('name', body.name);
       request1.input('phone', body.phone);
@@ -106,7 +106,7 @@ export class StudentService {
           `SELECT * FROM [hanam-church-database].comments WHERE organizationId = @organizationId`,
         );
         const rows = result.recordset;
-        
+
         if (rows.length > 0) {
           const request4 = transaction.request();
           request4.input('comment', body.comment);
@@ -130,7 +130,7 @@ export class StudentService {
           `SELECT * FROM [hanam-church-database].comments WHERE organizationId = @organizationId`,
         );
         const rows = result.recordset;
-        
+
         if (rows.length > 0) {
           const request7 = transaction.request();
           request7.input('organizationId', body.organizationId);
@@ -152,7 +152,7 @@ export class StudentService {
   async createStudent(body) {
     const transaction = this.pool.transaction();
     await transaction.begin();
-    
+
     try {
       let birth = null;
       if (body.birth) {
@@ -162,7 +162,7 @@ export class StudentService {
       if (body.phone) {
         phone = body.phone;
       }
-      
+
       // user테이블에 학생정보를 추가하고 id를 반환합니다.
       const request1 = transaction.request();
       request1.input('name', body.name);

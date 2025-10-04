@@ -81,7 +81,8 @@ export class EventService {
     try {
       const request = this.pool.request();
       request.input('id', id);
-      const result = await request.query(`SELECT * FROM [hanam-church-database].event WHERE id = @id`);
+      const result = await request.query(`
+        SELECT * FROM [hanam-church-database].event WHERE id = @id`);
       return result.recordset[0];
     } catch (error) {
       console.error('Error fetching all board:', error);
@@ -230,7 +231,7 @@ export class EventService {
         `SELECT * FROM [hanam-church-database].event_check WHERE id = @eventCheckId`,
       );
       const rows = result.recordset;
-      
+
       if (rows.length > 0) {
         const request2 = this.pool.request();
         request2.input('content', content);
@@ -327,13 +328,13 @@ export class EventService {
         `SELECT board_check, organizationId FROM [hanam-church-database].board_check WHERE id = @checkId`,
       );
       const rows = result.recordset;
-      
+
       if (rows.length > 0) {
         let resultValue = 1;
         if (rows[0].board_check === true || rows[0].board_check === 1) {
           resultValue = 0;
         }
-        
+
         const request2 = this.pool.request();
         request2.input('result', resultValue);
         request2.input('checkId', checkId);
@@ -407,7 +408,7 @@ export class EventService {
        WHERE event_id = @eventId AND organization_Id = @organizationId AND date = @date`,
     );
     const rows = queryResult.recordset;
-    
+
     if (rows.length > 0) {
       const id = rows[0].id;
       result.id = id;
