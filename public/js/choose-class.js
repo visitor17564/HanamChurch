@@ -23,4 +23,3 @@ function wrapClass() {
 
 // 다큐먼트가 로드될 때까지 기다리고 wrapClass 함수 실행
 document.addEventListener('DOMContentLoaded', wrapClass);
-wrapClass();
