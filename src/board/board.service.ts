@@ -616,8 +616,10 @@ export class BoardService {
       const checkCount = await this.checkCount(organizationId);
       const isNew = await this.checkIsNew(organizationId);
 
-      if (checkCount === 5 && isNew === 1) {
+      if (checkCount >= 5 && isNew) {
         await this.updateIsOnList(organizationId, 1);
+      } else if (checkCount < 5 && isNew === 1) {
+        await this.updateIsOnList(organizationId, 0);
       }
 
       return result.recordset[0].id;
@@ -659,9 +661,9 @@ export class BoardService {
         const organizationId = rows[0].organizationId;
         const checkCount = await this.checkCount(organizationId);
         const isNew = await this.checkIsNew(organizationId);
-        if (checkCount === 5 && isNew === 1) {
+        if (checkCount >= 5 && isNew) {
           await this.updateIsOnList(organizationId, 1);
-        } else if (checkCount === 4 && isNew === 1 && resultValue === 0) {
+        } else if (checkCount < 5 && isNew) {
           await this.updateIsOnList(organizationId, 0);
         }
 
