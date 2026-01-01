@@ -251,7 +251,10 @@ export class ModalHelper {
       document.getElementById('followTr2').style.display = 'none';
     }
     const checkCount = await this.getStudentCheckCount(student.organizationId);
-    const thisYear = this.attandance.dateHelper.date.split('-')[0];
+    // dateHelper가 없는 경우 현재 연도 사용 (find-student 페이지 대응)
+    const thisYear = this.attandance.dateHelper
+      ? this.attandance.dateHelper.date.split('-')[0]
+      : new Date().getFullYear();
     const beforeComment = await this.getStudentBeforeComment(
       student.id,
       thisYear,

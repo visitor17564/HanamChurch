@@ -1,0 +1,90 @@
+@import url('/css/attendance.css');
+/* find-student 페이지 전용 스타일 */
+
+/* header가 빈 내용이어도 공간 확보 */
+header {
+  min-height: 60px;
+  margin-bottom: 20px;
+}
+
+.contents {
+  padding: 0 20px;
+}
+
+.footer {
+  gap: 2rem;
+}
+
+.findStudent {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin-top: 5%;
+  gap: 10px;
+}
+
+#findFollowName {
+  font-size: 1.2em;
+  font-weight: bold;
+  height: 30px;
+  width: 13rem;
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.findFollowButton {
+  width: 100px;
+  height: 30px;
+  background-color: #59c1d5;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.findFollowButton:hover {
+  background-color: #4ab0c4;
+}
+
+#wrap-follows {
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  gap: 10px;
+  padding: 20px;
+}
+
+.student-item {
+  width: 80%;
+  max-width: 400px;
+  padding: 15px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  gap: 10px;
+  font-size: 1.1em;
+}
+
+.student-item:hover {
+  background-color: #82c8d6;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.student-item span {
+  font-weight: 600;
+}
+
+.no-result {
+  padding: 40px;
+  color: #999;
+  font-size: 1.1em;
+}

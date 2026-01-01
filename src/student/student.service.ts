@@ -224,9 +224,14 @@ export class StudentService {
       request.input('searchName', searchName);
       const result = await request.query(
         `SELECT u.id, u.name, o.grade, o.class
-         FROM [hanam-church-database].users u
-         JOIN [hanam-church-database].organization o ON o.userId = u.id
-         WHERE u.name LIKE @searchName`,
+        FROM [hanam-church-database].users u
+        CROSS APPLY (
+          SELECT TOP 1 grade, class, id
+          FROM [hanam-church-database].organization
+          WHERE userId = u.id
+          ORDER BY grade DESC, year DESC
+        ) o
+        WHERE u.name LIKE @searchName`,
       );
       const response = result.recordset;
       return response;
@@ -270,6 +275,32 @@ export class StudentService {
       return response;
     } catch (error) {
       console.error('Error fetching class members:', error);
+      throw error;
+    }
+  }
+
+  async getStudentDetail(userId) {
+    try {
+      const request = this.pool.request();
+      request.input('userId', userId);
+      const result = await request.query(
+        `SELECT u.id, u.name, u.gender, u.phone, u.birth, u.created_at,
+                o.id as organizationId, o.grade, o.class, o.school, o.is_new, o.follow,
+                c.comment
+         FROM [hanam-church-database].users u
+         CROSS APPLY (
+           SELECT TOP 1 id, grade, class, school, is_new, follow
+           FROM [hanam-church-database].organization
+           WHERE userId = u.id
+           ORDER BY grade DESC, year DESC
+         ) o
+         LEFT JOIN [hanam-church-database].comments c ON c.organizationId = o.id
+         WHERE u.id = @userId`,
+      );
+      const response = result.recordset[0];
+      return response;
+    } catch (error) {
+      console.error('Error fetching student detail:', error);
       throw error;
     }
   }

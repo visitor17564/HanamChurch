@@ -50,4 +50,10 @@ export class AppController {
   async goToCheckEvent() {
     return;
   }
+
+  @Get('find-student')
+  @Render('find-student')
+  async goToFindStudent() {
+    return;
+  }
 }

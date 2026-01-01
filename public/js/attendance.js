@@ -317,7 +317,6 @@ class Attendance {
           organizationId,
           content,
         );
-        console.log(response);
         targetDiv.dataset.content = response.data.content;
         targetDiv.dataset.eventcheckid = response.data.id;
         if (response.data.content === 1) {
