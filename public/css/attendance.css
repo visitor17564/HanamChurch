@@ -91,7 +91,8 @@ body {
 
 .wrapAttendance {
   margin-top: 30%;
-  margin-bottom: 15%; /* footer의 높이만큼 여유 공간 확보 */
+  margin-bottom: 15%;
+  /* footer의 높이만큼 여유 공간 확보 */
 }
 
 .header {
@@ -138,11 +139,15 @@ body {
 
 .dateDiv,
 .yearDiv {
-  border: none; /* 테두리 제거 */
-  -webkit-appearance: none; /* 기본 디자인 제거 */
+  border: none;
+  /* 테두리 제거 */
+  -webkit-appearance: none;
+  /* 기본 디자인 제거 */
   -moz-appearance: none;
-  appearance: none; /* 기본 스타일 제거 */
-  cursor: pointer; /* 마우스 오버 시 커서 변경 */
+  appearance: none;
+  /* 기본 스타일 제거 */
+  cursor: pointer;
+  /* 마우스 오버 시 커서 변경 */
   font-size: 1.2em;
   font-weight: bold;
 }
@@ -166,6 +171,7 @@ body {
   display: flex;
   justify-content: space-between;
   gap: 5%;
+  font-size: 1rem;
 }
 
 .totalDiv {
@@ -209,8 +215,10 @@ body {
   font-weight: bold;
   margin-top: auto;
   margin-bottom: auto;
-  text-decoration: none; /* 기본 밑줄 제거 */
-  color: inherit; /* 기본 색상 제거 */
+  text-decoration: none;
+  /* 기본 밑줄 제거 */
+  color: inherit;
+  /* 기본 색상 제거 */
 }
 
 .loading-wrap {
@@ -221,6 +229,7 @@ body {
   width: 100%;
   height: 300px;
 }
+
 .loading-spinner {
   width: 40px;
   height: 40px;
@@ -234,10 +243,12 @@ body {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
 }
+
 .ex-box {
   padding: 10px;
 }
@@ -277,6 +288,7 @@ body {
   width: 100%;
   height: 100%;
 }
+
 .FLOATING_DIV_MASK,
 .FLOATING_DIV_MASK_FOLLOW,
 .FLOATING_DIV_MASK_EVENT {
@@ -287,6 +299,7 @@ body {
   width: 100%;
   height: 100%;
 }
+
 .FLOATING_DIV_BLOCK,
 .FLOATING_DIV_BLOCK_FOLLOW,
 .FLOATING_DIV_BLOCK_EVENT {
@@ -328,11 +341,13 @@ body {
 .FLOATING_DIV_MASK_EVENT {
   z-index: 500;
 }
+
 .FLOATING_DIV_BLOCK_EVENT {
   z-index: 600;
 }
 
 @media all and (max-width: 400px) {
+
   .FLOATING_DIV_BLOCK,
   .FLOATING_DIV_BLOCK_FOLLOW,
   .FLOATING_DIV_BLOCK_EVENT {
@@ -429,8 +444,10 @@ body {
 }
 
 .goToHome {
-  text-decoration: none; /* 기본 밑줄 제거 */
-  color: inherit; /* 기본 색상 제거 */
+  text-decoration: none;
+  /* 기본 밑줄 제거 */
+  color: inherit;
+  /* 기본 색상 제거 */
 }
 
 #eventStudentInfo {
@@ -450,11 +467,18 @@ body {
 }
 
 #eventHistoryList li {
-  text-align: center; /* 텍스트 가운데 정렬 */
-  list-style-type: none; /* 기본 리스트 스타일 제거 */
-  margin: 5px 0; /* 리스트 항목 간격 조정 */
-  padding: 5px; /* 리스트 항목 패딩 추가 */
-  background-color: #f1f1f1; /* 배경색 설정 */
-  border-radius: 5px; /* 모서리 둥글게 설정 */
-  width: 100%; /* 전체 너비 사용 */
+  text-align: center;
+  /* 텍스트 가운데 정렬 */
+  list-style-type: none;
+  /* 기본 리스트 스타일 제거 */
+  margin: 5px 0;
+  /* 리스트 항목 간격 조정 */
+  padding: 5px;
+  /* 리스트 항목 패딩 추가 */
+  background-color: #f1f1f1;
+  /* 배경색 설정 */
+  border-radius: 5px;
+  /* 모서리 둥글게 설정 */
+  width: 100%;
+  /* 전체 너비 사용 */
 }
