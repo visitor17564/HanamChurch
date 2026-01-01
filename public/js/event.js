@@ -82,7 +82,7 @@ class Event {
       // totalNewCount += 1;
       const div = `
         <div class="attendanceDiv">
-          <div class="name" data-userId="${id}" data-organizationId="${organizationId}">🐤 ${grade}학년 ${classNum}반 ${name} ${onPrizeDiv}</div>
+          <div class="name" data-userId="${id}" data-organizationId="${organizationId}">${grade}학년 ${classNum}반 ${name} ${onPrizeDiv}</div>
           <div class="checkAndEventDiv" data-userId="${id}" data-organizationId="${organizationId}">
             체크 : ${item.event_check_count}회 🔍
           </div>

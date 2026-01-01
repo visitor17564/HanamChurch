@@ -143,6 +143,7 @@ export class DateHelper {
       const beforeWeekString = beforeWeek.split('T')[0];
       this.date = beforeWeekString;
       this.wrapDate(beforeWeekString);
+      this.attendance.wrapClassDiv();
       this.attendance.makeAttendance();
       this.setMoveDateEventlistener();
       return;
@@ -157,6 +158,7 @@ export class DateHelper {
         const beforeWeekString = beforeWeek.split('T')[0];
         this.date = beforeWeekString;
         this.wrapDate(beforeWeekString);
+        this.attendance.wrapClassDiv();
         this.attendance.makeAttendance();
         this.setMoveDateEventlistener();
         return;
@@ -177,6 +179,7 @@ export class DateHelper {
         const beforeWeek = yearSundayArray[todayIndex - 1];
         this.date = beforeWeek;
         this.wrapDate(beforeWeek);
+        this.attendance.wrapClassDiv();
         this.attendance.makeAttendance();
         this.setMoveDateEventlistener();
         return;
@@ -192,6 +195,7 @@ export class DateHelper {
     ).toISOString();
     const afterWeekString = afterWeek.split('T')[0];
     this.date = afterWeekString;
+    this.attendance.wrapClassDiv();
     this.wrapDate(afterWeekString);
     this.attendance.makeAttendance();
     this.setMoveDateEventlistener();
@@ -217,6 +221,7 @@ export class DateHelper {
 
     this.date = dateDiv.value;
     this.wrapDate(this.date);
+    this.attendance.wrapClassDiv();
     this.attendance.makeAttendance();
     this.setMoveDateEventlistener();
   }

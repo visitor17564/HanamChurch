@@ -48,4 +48,9 @@ export class StudentController {
   ) {
     return await this.studentService.getBeforeComment(studentId, year);
   }
+
+  @Get('/detail/:userId')
+  async getStudentDetail(@Param('userId') userId: number) {
+    return await this.studentService.getStudentDetail(userId);
+  }
 }

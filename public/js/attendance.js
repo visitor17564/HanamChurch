@@ -26,13 +26,23 @@ class Attendance {
     this.checkNewCount = 0;
     this.totalNewCount = 0;
     this.isRequestInProcess = false;
+    this.teacherData = null;
+  }
+
+  // 선생님 데이터를 로드합니다.
+  async loadTeacherData() {
+    if (!this.teacherData) {
+      const response = await fetch('/data/teacher.json');
+      this.teacherData = await response.json();
+    }
+    return this.teacherData;
   }
 
   // 학년, 반, 선생님 이름을 div로 만들어서 wrapGrade에 넣습니다.
   async wrapClassDiv() {
     // parameter에서 grade를 가져옵니다.
     // 선생님 이름을 가져옵니다.
-    const teacherName = this.makeTeacher(this.grade, this.classNum);
+    const teacherName = await this.getTeacher(this.grade, this.classNum);
 
     const gradeDiv = document.querySelector('.wrapGrade');
     const div = `
@@ -49,73 +59,27 @@ class Attendance {
     await this.stopLoading();
   }
 
-  // 학년, 반에 따른 선생님을 만듭니다.
-  makeTeacher(grade, classNum) {
-    let teacherName = '';
-    switch (grade) {
-      case 1:
-        switch (classNum) {
-          case 1:
-            teacherName = '전은경';
-            break;
-          case 2:
-            teacherName = '이은진';
-            break;
-          case 3:
-            teacherName = '최현미';
-            break;
-          case 4:
-            teacherName = '홍사성';
-            break;
-          case 5:
-            teacherName = '허은성';
-            break;
-          case 6:
-            teacherName = '함석주';
-            break;
-          default:
-            console.log('반 정보가 잘못되었습니다.');
-        }
-        break;
-      case 2:
-        switch (classNum) {
-          case 1:
-            teacherName = '문민욱';
-            break;
-          case 2:
-            teacherName = '한미연';
-            break;
-          case 3:
-            teacherName = '소양신';
-            break;
-          case 4:
-            teacherName = '김두환';
-            break;
-          default:
-            console.log('반 정보가 잘못되었습니다.');
-        }
-        break;
-      case 3:
-        switch (classNum) {
-          case 1:
-            teacherName = '소담희';
-            break;
-          case 2:
-            teacherName = '최재혁';
-            break;
-          case 3:
-            teacherName = '윤지성';
-            break;
-          case 4:
-            teacherName = '임신배';
-            break;
-          default:
-            console.log('반 정보가 잘못되었습니다.');
-        }
-      default:
-        console.log('학년 정보가 잘못되었습니다.');
+  // 선생님 정보를 가져옵니다.
+  async getTeacher(grade, classNum) {
+    const year = parseInt(this.dateHelper.date.split('-')[0])
+      ? parseInt(this.dateHelper.date.split('-')[0])
+      : new Date().getFullYear();
+    const department = '고등부';
+
+    try {
+      const teacherData = await this.loadTeacherData();
+      const teacher = teacherData[department]?.[year]?.[grade]?.[classNum];
+      if (!teacher) {
+        console.warn(
+          `선생님 정보를 찾을 수 없습니다: ${year}년 ${department} ${grade}학년 ${classNum}반`,
+        );
+        return '정보없음';
+      }
+      return teacher;
+    } catch (error) {
+      console.error('선생님 정보 로드 오류:', error);
+      return '정보없음';
     }
-    return teacherName;
   }
 
   // 학년, 반, 날짜에 따른 출석부를 가져옵니다.
@@ -200,13 +164,17 @@ class Attendance {
       const userId = item.id;
       const checkId = item.checkId;
       const isOnList = item.is_on_list;
-      let newFriendSpan = '';
-      if (!isOnList) {
-        newFriendSpan = `&nbsp;<span class="codeGreen">새친구</span>`;
+      const isNew = item.is_new;
+      let addedSpan = '';
+      if (isNew) {
+        addedSpan += `&nbsp;<span class="codeGreen">새친구</span>`;
+      }
+      if (isNew && isOnList) {
+        addedSpan += `&nbsp;<span class="codeGreen">재적포함</span>`;
       }
       const div = `
         <div class="attendanceDiv">
-          <div class="name" data-userId="${userId}" data-organizationId="${organizationId}">🐤 ${name} ${newFriendSpan}</div>
+          <div class="name" data-userId="${userId}" data-organizationId="${organizationId}">🐤 ${name} ${addedSpan}</div>
           <div class="checkAndEventDiv">
             <div class="check" data-checkId="${checkId}" data-isOnList="${isOnList}" data-organizationId="${organizationId}">${checkSvg}</div>
             ${eventDiv}
@@ -313,7 +281,6 @@ class Attendance {
           organizationId,
           content,
         );
-        console.log(response);
         targetDiv.dataset.content = response.data.content;
         targetDiv.dataset.eventcheckid = response.data.id;
         if (response.data.content === 1) {
