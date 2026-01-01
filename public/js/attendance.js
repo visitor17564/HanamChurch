@@ -200,13 +200,17 @@ class Attendance {
       const userId = item.id;
       const checkId = item.checkId;
       const isOnList = item.is_on_list;
-      let newFriendSpan = '';
-      if (!isOnList) {
-        newFriendSpan = `&nbsp;<span class="codeGreen">새친구</span>`;
+      const isNew = item.is_new;
+      let addedSpan = '';
+      if (isNew) {
+        addedSpan += `&nbsp;<span class="codeGreen">새친구</span>`;
+      }
+      if (isNew && isOnList) {
+        addedSpan += `&nbsp;<span class="codeGreen">재적포함</span>`;
       }
       const div = `
         <div class="attendanceDiv">
-          <div class="name" data-userId="${userId}" data-organizationId="${organizationId}">🐤 ${name} ${newFriendSpan}</div>
+          <div class="name" data-userId="${userId}" data-organizationId="${organizationId}">🐤 ${name} ${addedSpan}</div>
           <div class="checkAndEventDiv">
             <div class="check" data-checkId="${checkId}" data-isOnList="${isOnList}" data-organizationId="${organizationId}">${checkSvg}</div>
             ${eventDiv}
