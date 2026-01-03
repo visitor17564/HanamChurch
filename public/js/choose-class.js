@@ -1,13 +1,17 @@
-function wrapClass() {
+async function wrapClass() {
   const classDiv = document.getElementById('wrapClass');
   // query string에서 grade를 가져옴
   const grade = parseInt(
     new URLSearchParams(window.location.search).get('grade'),
   );
-  let count = 0;
-  if (grade === 1) count = 6;
-  else if (grade === 2) count = 4;
-  else if (grade === 3) count = 4;
+
+  // teacher.json 파일을 가져와서 현재 연도에 맞는 반 수를 계산
+  const response = await fetch('/data/teacher.json');
+  const teacherData = await response.json();
+
+  const currentYear = new Date().getFullYear();
+  const classData = teacherData['고등부'][currentYear]?.[grade];
+  const count = classData ? Object.keys(classData).length : 0;
 
   for (let i = 1; i <= count; i++) {
     const button = document.createElement('button');
