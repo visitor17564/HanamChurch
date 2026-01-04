@@ -386,14 +386,14 @@ class Attendance {
   changeCount(data, isOnList) {
     if (data === 1) {
       this.checkOnClass += 1;
-      if (isOnList === '1') {
+      if (isOnList) {
         this.checkOnList += 1;
       } else {
         this.checkNewCount += 1;
       }
     } else {
       this.checkOnClass -= 1;
-      if (isOnList === '1') {
+      if (isOnList) {
         this.checkOnList -= 1;
       } else {
         this.checkNewCount -= 1;
