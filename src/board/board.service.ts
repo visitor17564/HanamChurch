@@ -121,6 +121,11 @@ export class BoardService {
               onListCount: 0,
               newListCount: 0,
             },
+            7: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
           },
           2: {
             1: {
@@ -144,6 +149,11 @@ export class BoardService {
               newListCount: 0,
             },
             5: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
+            6: {
               totalCount: 0,
               onListCount: 0,
               newListCount: 0,
@@ -215,6 +225,11 @@ export class BoardService {
               onListCount: 0,
               newListCount: 0,
             },
+            7: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
           },
           2: {
             1: {
@@ -238,6 +253,11 @@ export class BoardService {
               newListCount: 0,
             },
             5: {
+              totalCount: 0,
+              onListCount: 0,
+              newListCount: 0,
+            },
+            6: {
               totalCount: 0,
               onListCount: 0,
               newListCount: 0,
