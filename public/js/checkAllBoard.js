@@ -1,5 +1,15 @@
 import { DateHelper } from './date-helper.js';
 
+// teacher.json 데이터를 불러옵니다.
+let teacherData = null;
+async function loadTeacherData() {
+  if (!teacherData) {
+    const response = await fetch('/data/teacher.json');
+    teacherData = await response.json();
+  }
+  return teacherData;
+}
+
 // 다큐먼트가 로드될 때가지 기다립니다.
 document.addEventListener('DOMContentLoaded', async () => {
   const checkAllBoard = new CheckAllBoard();
@@ -35,17 +45,28 @@ class CheckAllBoard {
   }
 
   // 출석부를 div로 만들어서 wrapAttendance에 넣습니다.
-  wrapBoard(item) {
+  async wrapBoard(item) {
     const attendanceDiv = document.querySelector('.wrapAttendance');
     // 기존에 있던 div들을 지웁니다.
     attendanceDiv.innerHTML = '';
+    
+    // teacher.json에서 동적으로 학년/반 정보 가져오기
+    const teacherData = await loadTeacherData();
+    const currentYear = new Date().getFullYear();
+    const yearData = teacherData['고등부'][currentYear];
+    
+    if (!yearData) {
+      console.error(`${currentYear}년도 데이터를 찾을 수 없습니다.`);
+      return;
+    }
+    
+    const totalGrade = Object.keys(yearData).length;
+    const totalClass = {};
+    for (let grade = 1; grade <= totalGrade; grade++) {
+      totalClass[grade] = Object.keys(yearData[grade]).length;
+    }
+    
     // div뿌리기
-    const totalGrade = 3;
-    const totalClass = {
-      1: 6,
-      2: 5,
-      3: 4,
-    };
     for (let a = 1; a <= totalGrade; a++) {
       for (let b = 1; b <= totalClass[a]; b++) {
         if (item.checkedCount[a][b]['totalCount'] === 0) {
