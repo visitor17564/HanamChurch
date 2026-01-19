@@ -44,28 +44,39 @@ class CheckAllBoard {
     this.wrapBottomButton();
   }
 
+  // 학년, 반, 선생님 이름을 div로 만들어서 wrapGrade에 넣습니다.
+  async wrapClassDiv() {
+    // parameter에서 grade를 가져옵니다.
+    // 선생님 이름을 가져옵니다.
+    const gradeDiv = document.querySelector('.wrapGrade');
+    const div = `
+    <div class="gradeDiv contentText"><h2>🐤 전체출석부</h2></div>
+    `;
+    gradeDiv.innerHTML = div;
+  }
+
   // 출석부를 div로 만들어서 wrapAttendance에 넣습니다.
   async wrapBoard(item) {
     const attendanceDiv = document.querySelector('.wrapAttendance');
     // 기존에 있던 div들을 지웁니다.
     attendanceDiv.innerHTML = '';
-    
+
     // teacher.json에서 동적으로 학년/반 정보 가져오기
     const teacherData = await loadTeacherData();
     const currentYear = new Date().getFullYear();
     const yearData = teacherData['고등부'][currentYear];
-    
+
     if (!yearData) {
       console.error(`${currentYear}년도 데이터를 찾을 수 없습니다.`);
       return;
     }
-    
+
     const totalGrade = Object.keys(yearData).length;
     const totalClass = {};
     for (let grade = 1; grade <= totalGrade; grade++) {
       totalClass[grade] = Object.keys(yearData[grade]).length;
     }
-    
+
     // div뿌리기
     for (let a = 1; a <= totalGrade; a++) {
       for (let b = 1; b <= totalClass[a]; b++) {
