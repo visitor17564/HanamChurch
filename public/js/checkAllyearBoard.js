@@ -1,9 +1,22 @@
 import { DateHelper } from './date-helper.js';
 
+// teacher.json 데이터를 불러옵니다.
+let teacherData = null;
+async function loadTeacherData() {
+  if (!teacherData) {
+    const response = await fetch('/data/teacher.json');
+    teacherData = await response.json();
+  }
+  return teacherData;
+}
+
 // 다큐먼트가 로드될 때가지 기다립니다.
 document.addEventListener('DOMContentLoaded', async () => {
   // url query에서 year값을 가져옵니다.
-  const year = new URLSearchParams(window.location.search).get('year');
+  const urlParams = new URLSearchParams(window.location.search);
+  let year = urlParams.get('year')
+    ? urlParams.get('year')
+    : new Date().getFullYear();
   var Grid = tui.Grid;
   const dateHelper = new DateHelper();
   const yearSundayArray = dateHelper.makeYearSundayArrayForAllYearBoards(year);
@@ -14,7 +27,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // yearSelect의 값을 year로 설정합니다.
   yearSelect.value = year;
   yearSelect.addEventListener('change', () => {
-    const year = yearSelect.value;
+    year = yearSelect.value;
     window.location.href = `/check-all-year-board?year=${year}`;
   });
 });
@@ -23,11 +36,13 @@ class CheckAllYearBoard {
   constructor(yearSundayArray, Grid) {
     this.yearSundayArray = yearSundayArray;
     this.Grid = Grid;
+    this.gridInstance = null;
   }
 
   // 출석부를 만듭니다.
   async makeAttendance(year) {
     await this.simulateLoading();
+    this.renderDateLabel(year);
     await this.getBoard(year);
     await this.stopLoading();
   }
@@ -40,8 +55,24 @@ class CheckAllYearBoard {
   }
 
   // 출석부를 grid로 만들어서 wrapAttendance에 넣습니다.
-  wrapBoard(item) {
+  async wrapBoard(item) {
     document.querySelector('.wrapAttendance').innerHTML = '';
+
+    // teacher.json에서 동적으로 학년/반 정보 가져오기
+    const teacherData = await loadTeacherData();
+    const currentYear = new Date().getFullYear();
+    const yearData = teacherData['고등부'][currentYear];
+
+    if (!yearData) {
+      console.error(`${currentYear}년도 데이터를 찾을 수 없습니다.`);
+      return;
+    }
+
+    const totalGrade = Object.keys(yearData).length;
+    const totalClass = {};
+    for (let grade = 1; grade <= totalGrade; grade++) {
+      totalClass[grade] = Object.keys(yearData[grade]).length;
+    }
 
     // grid 컬럼 설정
     const columns = [
@@ -126,12 +157,6 @@ class CheckAllYearBoard {
         },
       });
     });
-    const totalGrade = 3;
-    const totalClass = {
-      1: 6,
-      2: 5,
-      3: 4,
-    };
     const data = [];
     for (let a = 1; a <= totalGrade; a++) {
       for (let b = 1; b <= totalClass[a]; b++) {
@@ -160,7 +185,7 @@ class CheckAllYearBoard {
     }
     // div뿌리기
     this.Grid.setLanguage('ko'); // set Korean
-    new this.Grid({
+    this.gridInstance = new this.Grid({
       el: document.querySelector('.wrapAttendance'),
       columns,
       bodyHeight: 500,
@@ -173,6 +198,7 @@ class CheckAllYearBoard {
       },
       data,
     });
+    this.setupExcelButton();
   }
 
   // 홈버튼을 만듭니다.
@@ -205,5 +231,99 @@ class CheckAllYearBoard {
 
     // 로딩 종료
     exBox.style.display = 'none';
+  }
+
+  // 상단 날짜/연도 라벨 렌더링
+  renderDateLabel(year) {
+    const wrapDate = document.querySelector('.wrapDate');
+    if (!wrapDate) return;
+    const todayKR = new Date()
+      .toLocaleDateString('ko-KR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        timeZone: 'Asia/Seoul',
+      })
+      .split('. ')
+      .map((part) => part.replace('.', '').padStart(2, '0'));
+    const today = `${todayKR[0]}-${todayKR[1]}-${todayKR[2]}`;
+    wrapDate.innerHTML = `<div class="dateLabel">기준일: ${today} · 선택연도: ${year}</div>`;
+  }
+
+  // 엑셀 다운로드 버튼 설정
+  setupExcelButton() {
+    const excelBtn = document.getElementById('excelDownloadBtn');
+    if (excelBtn) {
+      excelBtn.addEventListener('click', () => {
+        if (this.gridInstance) {
+          const yearSelect = document.querySelector('.yearSelect');
+          const selectedYear = yearSelect
+            ? yearSelect.value
+            : new Date().getFullYear();
+          this.exportCSVWithHeader(selectedYear);
+        }
+      });
+    }
+  }
+
+  // CSV 상단에 기준일/선택연도 포함하여 내보내기
+  exportCSVWithHeader(selectedYear) {
+    const today = new Date();
+    const dateStr =
+      today.getFullYear() +
+      (today.getMonth() + 1).toString().padStart(2, '0') +
+      today.getDate().toString().padStart(2, '0');
+
+    const todayKRParts = today
+      .toLocaleDateString('ko-KR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        timeZone: 'Asia/Seoul',
+      })
+      .split('. ')
+      .map((part) => part.replace('.', '').padStart(2, '0'));
+    const todayKR = `${todayKRParts[0]}-${todayKRParts[1]}-${todayKRParts[2]}`;
+
+    const columns =
+      this.gridInstance.getColumns && this.gridInstance.getColumns()
+        ? this.gridInstance
+            .getColumns()
+            .map((c) => ({ name: c.name, header: c.header }))
+        : [];
+    const rows =
+      this.gridInstance.getData && this.gridInstance.getData()
+        ? this.gridInstance.getData()
+        : [];
+
+    // CSV 생성 헬퍼
+    const esc = (v) => {
+      const s = v === undefined || v === null ? '' : String(v);
+      return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    };
+
+    const headerLine = columns.map((c) => esc(c.header)).join(',');
+    const dataLines = rows.map((r) =>
+      columns.map((c) => esc(r[c.name])).join(','),
+    );
+
+    const lines = [];
+    lines.push(esc(`기준일: ${todayKR} · 선택연도: ${selectedYear}`));
+    lines.push('');
+    lines.push(headerLine);
+    lines.push(...dataLines);
+
+    const csv = lines.join('\n');
+    const blob = new Blob(['\uFEFF' + csv], {
+      type: 'text/csv;charset=utf-8;',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `고등부출석부_${dateStr}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }
 }
