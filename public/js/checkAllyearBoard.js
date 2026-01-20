@@ -1,9 +1,22 @@
 import { DateHelper } from './date-helper.js';
 
+// teacher.json 데이터를 불러옵니다.
+let teacherData = null;
+async function loadTeacherData() {
+  if (!teacherData) {
+    const response = await fetch('/data/teacher.json');
+    teacherData = await response.json();
+  }
+  return teacherData;
+}
+
 // 다큐먼트가 로드될 때가지 기다립니다.
 document.addEventListener('DOMContentLoaded', async () => {
   // url query에서 year값을 가져옵니다.
-  const year = new URLSearchParams(window.location.search).get('year');
+  const urlParams = new URLSearchParams(window.location.search);
+  let year = urlParams.get('year')
+    ? urlParams.get('year')
+    : new Date().getFullYear();
   var Grid = tui.Grid;
   const dateHelper = new DateHelper();
   const yearSundayArray = dateHelper.makeYearSundayArrayForAllYearBoards(year);
@@ -14,7 +27,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // yearSelect의 값을 year로 설정합니다.
   yearSelect.value = year;
   yearSelect.addEventListener('change', () => {
-    const year = yearSelect.value;
+    year = yearSelect.value;
     window.location.href = `/check-all-year-board?year=${year}`;
   });
 });
@@ -40,8 +53,24 @@ class CheckAllYearBoard {
   }
 
   // 출석부를 grid로 만들어서 wrapAttendance에 넣습니다.
-  wrapBoard(item) {
+  async wrapBoard(item) {
     document.querySelector('.wrapAttendance').innerHTML = '';
+
+    // teacher.json에서 동적으로 학년/반 정보 가져오기
+    const teacherData = await loadTeacherData();
+    const currentYear = new Date().getFullYear();
+    const yearData = teacherData['고등부'][currentYear];
+
+    if (!yearData) {
+      console.error(`${currentYear}년도 데이터를 찾을 수 없습니다.`);
+      return;
+    }
+
+    const totalGrade = Object.keys(yearData).length;
+    const totalClass = {};
+    for (let grade = 1; grade <= totalGrade; grade++) {
+      totalClass[grade] = Object.keys(yearData[grade]).length;
+    }
 
     // grid 컬럼 설정
     const columns = [
@@ -126,12 +155,6 @@ class CheckAllYearBoard {
         },
       });
     });
-    const totalGrade = 3;
-    const totalClass = {
-      1: 6,
-      2: 5,
-      3: 4,
-    };
     const data = [];
     for (let a = 1; a <= totalGrade; a++) {
       for (let b = 1; b <= totalClass[a]; b++) {
